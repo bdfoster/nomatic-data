@@ -1,0 +1,28 @@
+{
+  "name": "nomatic-data",
+  "version": "0.0.0",
+  "description": "Extensible Object-relational Mapper for Node.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdfoster/nomatic-data.git"
+  },
+  "keywords": [
+    "nomatic",
+    "lib",
+    "orm",
+    "data",
+    "mapper",
+    "active",
+    "record"
+  ],
+  "author": "Brian Foster <bdfoster89@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bdfoster/nomatic-data/issues"
+  },
+  "homepage": "https://github.com/bdfoster/nomatic-data#readme"
+}
