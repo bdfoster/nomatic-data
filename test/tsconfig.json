@@ -13,10 +13,6 @@
     "removeComments": true,
     "noLib": false,
     "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "compileOnSave": true
+    "suppressImplicitAnyIndexErrors": true,
+  }
 }

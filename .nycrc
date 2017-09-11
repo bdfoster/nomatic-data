@@ -1,0 +1,15 @@
+{
+  "extension": [
+    ".ts",
+    ".tsx"
+  ],
+  "exclude": [
+    "**/*.d.ts"
+  ],
+  "reporter": [
+    "html",
+    "text-summary"
+  ],
+  "produce-source-map": true,
+  "all": true
+}

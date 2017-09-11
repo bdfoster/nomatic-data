@@ -1,0 +1,26 @@
+sudo: false
+language: node_js
+node_js:
+- '8'
+env:
+  global:
+  - CXX=g++-4.8
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
+script:
+  - npm test
+before_deploy:
+  - npm run build
+deploy:
+  provider: npm
+  email: bdfoster89@gmail.com
+  api_key:
+    secure: rCtWeKm/sM2VIknmHwE0p04r7tWvXEocZHVzT+0ScF2WVFUZ/3rC8TqKUBS7mne5INH7uY6Yk+yifRV4J5+mf9RfrVwnNkqZR1j/Q3T7RVtiS2LA8LiX9J5VZV8Pp17S6EacIH/E7RILwQsrGcQrfGT/RvpS1xYiEkG0PGe7nZvpYs/QEGoC94r34ykJYgKppPRw5rzB96KAmUbwyXI/DzCZ4rcZBPvBNU16hwhsx6cqNJYp3zsHcH9ZRq4echB4vwlIhUL+DFls06M11A8qK9n4Hh9BkjIl8cxaovzdOlLtppezGMlyvypILdmqGLZS2pnxwMDAbD+1LAhUfez8a1f5XnxPDZJbGdhVgfzfG2zx7yciQsHnbufffDZI9+tcdg6rSTJlbtpfoPHtUL+X0wWrTjhuv3zboxHHKB7jEKCuQmH2lkQTwMTbkTOZZueYUWO34r8ShH3Yj2fiouO/jAPWLTSQk7WWQHK1yeQLORhU9F+s12+1Y2392uVi515nL/WIfJ1IQLSuZIMQPmYZPC7y51TGzUO87C5mMIc9TiP/y2voYVlC5VZy31nWxFAp7F7OU0QczozNrttX1O6XaT4RE3wpB3sMivjYawnO+HbVPAO5yW6Do4Hk0NzwboWMbGEpR/EfxUTM3TxAvnoy2BgAlXg162Si+tFo9aSzRng=
+  on:
+    tags: true
+    repo: bdfoster/nomatic-data
+  skip_cleanup: true
