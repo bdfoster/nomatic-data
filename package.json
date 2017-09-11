@@ -27,5 +27,8 @@
   "homepage": "https://github.com/bdfoster/nomatic-data#readme",
   "devDependencies": {
     "typescript": "^2.5.2"
+  },
+  "dependencies": {
+    "nomatic-events": "^2.1.1"
   }
 }
