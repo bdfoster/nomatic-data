@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/bdfoster/nomatic-data/issues"
   },
-  "homepage": "https://github.com/bdfoster/nomatic-data#readme"
+  "homepage": "https://github.com/bdfoster/nomatic-data#readme",
+  "devDependencies": {
+    "typescript": "^2.5.2"
+  }
 }
