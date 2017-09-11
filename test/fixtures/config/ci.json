@@ -1,0 +1,8 @@
+{
+  "arangodb": {
+    "host": "arangodb",
+    "port": 8529,
+    "user": "root",
+    "password": "secret"
+  }
+}
