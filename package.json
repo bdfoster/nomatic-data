@@ -4,6 +4,8 @@
   "description": "Extensible Object-relational Mapper for Node.js",
   "main": "dist/index.js",
   "scripts": {
+    "lint": "tslint -c tslint.json --project tsconfig.json",
+    "lint:fix": "npm run lint -- --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
