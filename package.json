@@ -4,7 +4,7 @@
   "description": "Extensible Object-relational Mapper for Node.js",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "lint": "tslint -c tslint.json --project tsconfig.json",
     "lint:fix": "npm run lint -- --fix",
