@@ -47,3 +47,4 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 /dist/
+/test/fixtures/config/development.json
