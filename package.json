@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/bdfoster/nomatic-data#readme",
   "devDependencies": {
+    "tslint": "^5.7.0",
     "typescript": "^2.5.2"
   },
   "dependencies": {
