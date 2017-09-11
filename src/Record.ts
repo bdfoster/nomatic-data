@@ -7,7 +7,9 @@ import {isNullOrUndefined} from "util";
 
 export type RecordOperation = 'add' | 'replace' | 'remove';
 export type RecordSaveFunction = (record: Record) => Promise<boolean | RecordData | Record>;
+export type RecordValidateFunction = (data: RecordData) => Promise<void | RecordData>;
 export type RecordVirtualPropertyFunction = () => any;
+
 export interface RecordChange {
     operation?: RecordOperation;
     key: string;
@@ -28,6 +30,11 @@ export interface RecordOptions {
      * Function to handle syncing changes of the Record instance to the storage device.
      */
     save?: RecordSaveFunction;
+
+    /**
+     * Function to handle validation of the Record instance and its properties. Called on `Record.validate()`.
+     */
+    validate?: RecordValidateFunction;
 
     /**
      * Object to describe virtual properties.
@@ -77,6 +84,7 @@ export class Record extends EventEmitter {
     private _changes: RecordChange[];
     private _data: RecordData;
     private _save: RecordSaveFunction;
+    private _validate: RecordValidateFunction;
     private _virtuals: Map<string, RecordVirtualPropertyOptions>;
 
     constructor (options: RecordOptions | Record, data?: RecordData) {
@@ -89,6 +97,7 @@ export class Record extends EventEmitter {
         } else {
             options = options || {};
             this._save = options.save || null;
+            this._validate = options.validate || null;
             this.init(data, options.virtuals);
         }
 
@@ -208,8 +217,9 @@ export class Record extends EventEmitter {
     public init(data: Record | RecordData, virtuals: RecordVirtualProperties = null) {
         if (data instanceof Record) {
             // Essentially clone the old Record instance
-            this._data = Object.assign({}, data._data);
             this._changes = data._changes.slice();
+            this._data = Object.assign({}, data._data);
+            this._validate = data._validate;
             this._virtuals = new Map(data._virtuals);
             this._save = data._save;
             return;

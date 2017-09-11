@@ -21,6 +21,13 @@ describe('Record', () => {
                     resolve(true);
                 });
             },
+            validate(data: RecordData) {
+                return new Promise((resolve) => {
+                    if (data.throw) throw new Error('thrown!');
+                    this.emit('validated');
+                    resolve();
+                })
+            },
             virtuals: {
                 hello() {
                     return 'world'
@@ -213,6 +220,30 @@ describe('Record', () => {
                 expect(i.test).to.equal(1);
                 expect(i.changes().length).to.equal(1);
             });
+        });
+    });
+
+    describe('#validate()', () => {
+        it('should call validate handler', (done) => {
+            let emitted = false;
+            instance.on('validated', () => {
+                emitted = true;
+            });
+
+            instance.validate().then(() => {
+                if (emitted) return done();
+
+                return done('Did not emit!');
+            });
+
+            setTimeout(() => {
+                return done('Did not emit!');
+            }, 200);
+        });
+
+        it('should not throw if validate handler is not defined', () => {
+            const i = new Record({});
+            return i.validate();
         });
     });
 
