@@ -7,8 +7,10 @@ services:
 before_install:
   - ./scripts/arangodb/start.sh
 script:
-  - npm install coveralls
   - npm run test:ci
+after_script:
+  - npm install coveralls
+  - npm run coveralls
 before_deploy:
   - npm run build
 deploy:
