@@ -15,10 +15,10 @@ if [ ! "$(docker ps -q -f name=${NAME})" ]; then
 fi
 
 docker ps -f name=${NAME}
+sleep 4
 while [ $CONTINUE -eq 1 ]; do
     sleep 1 &&
-    echo "$(curl 127.0.0.1:8529/_api/version)" &&
+    curl -s 127.0.0.1:8529/_api/version &&
     CONTINUE=0;
 done
-sleep 5
 echo "Connection to ArangoDB is live!"
