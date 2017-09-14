@@ -17,7 +17,7 @@ before_install:
   - docker pull arangodb:latest
   - docker run -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 -d --name arango arangodb:latest
   - CONTINUE=1
-  - while [ $CONTINUE -eq 1 ]; do sleep 1 && curl -s 127.0.0.1:8529/_api/version && CONTINUE=0; done
+  - while [ $CONTINUE -eq 1 ]; do sleep 1 && curl -s -v --trace-ascii 127.0.0.1:8529/_api/version && CONTINUE=0; done
   - docker inspect --format '{{ .NetworkSettings.IPAddress }}' arango
   - docker ps -a
 script:
