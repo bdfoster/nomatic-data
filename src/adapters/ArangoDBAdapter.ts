@@ -7,6 +7,7 @@ import NotFoundError from '../errors/NotFoundError';
 import {Filter} from '../index';
 import {RecordData} from '../Record';
 import {AdapterOptions, DatabaseAdapter} from './index';
+import {isNull, inspect} from 'util';
 
 export interface ArangoDBAdapterOptions extends AdapterOptions {
     host: string;
@@ -28,7 +29,8 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         this._password = options.password;
 
         this.client = new Database({
-            url: url
+            url: url,
+            databaseName: options.name
         });
 
         this.name = options.name;
@@ -39,6 +41,10 @@ export class ArangoDBAdapter extends DatabaseAdapter {
     }
 
     public set name(name: string) {
+        if (!this.client) {
+            return;
+        }
+
         this.client.useDatabase(name);
     }
 
@@ -62,7 +68,7 @@ export class ArangoDBAdapter extends DatabaseAdapter {
 
     public createCollection(collection: string) {
         if (this.name === '_system') {
-            return Promise.reject(new Error('Cannot create collections on system database: ' + this.name));
+            return Promise.reject(new Error('Cannot create a collection on ' + this.name + ' database: ' + collection));
         }
 
         return this.client.collection(collection).create({
@@ -122,15 +128,55 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         return data;
     }
 
+    public async dropCollection(collection: string): Promise<boolean> {
+        if (collection.startsWith('_')) {
+            throw new Error('Cannot delete a system collection');
+        }
+
+        try {
+            await this.client.collection(collection).drop();
+            return true;
+        } catch (error) {
+            this.handleError(error);
+            return false;
+        }
+    }
+
+    public async dropDatabase(database: string = this.name): Promise<boolean> {
+        if (database.startsWith('_')) {
+            throw new Error('Cannot delete a system database');
+        }
+
+        const currentDatabaseName = this.name;
+        this.name = '_system';
+
+        try {
+            await this.client.dropDatabase(database);
+            this.name = currentDatabaseName;
+            return true;
+        } catch (error) {
+            this.name = currentDatabaseName;
+            this.handleError(error);
+            return false;
+        }
+    }
+
     public encode(collection: string, data: RecordData): object {
-        if (data.id) {
-            data._id = collection + '/' + data.id;
-            data._key = data.id;
+        if (data.hasOwnProperty('id')) {
+            if (!(isNull(data.id))) {
+                data._id = collection + '/' + data.id;
+                data._key = data.id;
+            }
             delete data.id;
         }
 
-        if (data.rev) {
-            data._rev = data.rev;
+
+
+        if (data.hasOwnProperty('rev')) {
+            if (!(isNull(data.rev))) {
+                data._rev = data.rev;
+            }
+
             delete data.rev;
         }
 
@@ -149,11 +195,15 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         const example = omit(filter, ['skip', 'limit']);
 
         if (Object.keys(example).length > 0) {
-            if (filter.limit === 1 && filter.skip === 0) {
-                return await [this.findOneByExample(collection, example)];
-            }
 
-            return await this.findAllByExample(collection, example, filter.skip, filter.limit);
+            return this.findAllByExample(collection, example, filter.skip, filter.limit).catch((error) => {
+                if (error.name === 'ArangoError' && error.code === 404) {
+                    return [];
+                }
+
+                this.handleError(error);
+                return [];
+            });
         }
 
         const results = [];
@@ -195,21 +245,13 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         }
     }
 
-    public async findOneByExample(collection: string, data: RecordData): Promise<void | RecordData> {
-        try {
-            const response = await this.client.collection(collection).firstExample(data);
-            return this.decode(collection, response);
-        } catch (error) {
-            this.handleError(error);
-        }
-    }
-
-    public async get(collection: string, id: string): Promise<void | RecordData> {
+    public async get(collection: string, id: string): Promise<RecordData> {
         try {
             const response = await this.client.collection(collection).document(id);
             return this.decode(collection, response);
         } catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
+            return {};
         }
     }
 
@@ -220,7 +262,7 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         this.name = database;
 
         try {
-            const response = await this.client.listCollections(false);
+            const response = await this.client.listCollections(true);
             for (const collection of response) {
                 list.push(collection['name']);
             }
@@ -241,26 +283,48 @@ export class ArangoDBAdapter extends DatabaseAdapter {
 
             return list;
         }).catch((error) => {
+            if (error.name === 'ArangoError' && error['errorNum'] === 1228 && this.name !== '_system') {
+                const currentDatabase = this.name;
+                this.name = '_system';
+                return this.getDatabaseNames().then((list) => {
+                    this.name = currentDatabase;
+                    return list;
+                });
+            }
+
             this.handleError(error);
             return [];
         });
     }
 
-    public async insert(collection: string, data: RecordData): Promise<void | RecordData> {
+    public async insert(collection: string, data: RecordData): Promise<RecordData> {
+        data = Object.assign({}, data);
         try {
             const response = await this.client.collection(collection).save(this.encode(collection, data), {
                 returnNew: true,
                 waitForSync: true
             });
 
-            return this.decode(collection, response.new);
+            data = this.decode(collection, response.new);
+            return data;
 
         } catch (error) {
-            return this.handleError(error);
+            this.handleError(error, collection);
+            return {};
         }
     }
 
-    public async remove(collection: string, data: string | RecordData): Promise<void | RecordData> {
+    public insertAll(collection: string, data: RecordData[]): Promise<RecordData[]> {
+        const promises = [];
+
+        for (const i in data) {
+            promises.push(this.insert(collection, data[i]));
+        }
+
+        return Promise.all(promises);
+    }
+
+    public async remove(collection: string, data: string | RecordData): Promise<RecordData> {
         let id: string;
 
         const options = {
@@ -289,43 +353,12 @@ export class ArangoDBAdapter extends DatabaseAdapter {
             return this.decode(collection, response.old);
         } catch (error) {
             this.handleError(error);
-        }
-    }
-
-    public async dropCollection(collection: string): Promise<boolean> {
-        if (collection.startsWith('_')) {
-            throw new Error('Cannot delete a system collection');
-        }
-
-        try {
-            await this.client.collection(collection).drop();
-            return true;
-        } catch (error) {
-            this.handleError(error);
-            return false;
-        }
-    }
-
-    public async dropDatabase(database: string = this.name): Promise<boolean> {
-        if (database.startsWith('_')) {
-            throw new Error('Cannot delete a system database');
-        }
-
-        const currentDatabaseName = this.name;
-        this.name = '_system';
-
-        try {
-            await this.client.dropDatabase(database);
-            this.name = currentDatabaseName;
-            return true;
-        } catch (error) {
-            this.name = currentDatabaseName;
-            this.handleError(error);
-            return false;
+            return {};
         }
     }
 
     public async replace(collection: string, id: string, data: RecordData, rev: string = null) {
+        data = Object.assign({}, data);
         const options = {
             waitForSync: true,
             policy: 'error',
@@ -340,7 +373,8 @@ export class ArangoDBAdapter extends DatabaseAdapter {
             const response = await this.client.collection(collection).replace(id, this.encode(collection, data), options);
             return this.decode(collection, response.new);
         } catch (error) {
-            return this.handleError(error);
+            this.handleError(error);
+            return {};
         }
     }
 
@@ -365,6 +399,7 @@ export class ArangoDBAdapter extends DatabaseAdapter {
     }
 
     public async update(collection: string, id: string, data: RecordData) {
+        data = Object.assign({}, data);
         try {
             const options = {
                 waitForSync: true,
@@ -388,7 +423,8 @@ export class ArangoDBAdapter extends DatabaseAdapter {
                 throw new AssertionError('rev', data['_rev'], 'something different');
             }
 
-            return this.handleError(error);
+            this.handleError(error);
+            return {};
         }
     }
 
@@ -399,24 +435,20 @@ export class ArangoDBAdapter extends DatabaseAdapter {
     private handleError(error: Error, ...data: any[]) {
         switch (error.name) {
             case 'ArangoError':
-                const e = error;
                 switch (error['errorNum']) {
 
                     case 1202: // ERROR_ARANGO_DOCUMENT_NOT_FOUND
                         error = new NotFoundError();
-                        error.stack = e.stack;
                         break;
 
                     case 1203: // ERROR_ARANGO_COLLECTION_NOT_FOUND
-                        const collectionName = error.message.split('\'')[1];
+                        const collectionName = error.message.split(': ')[1];
                         error = new AdapterError('Database `' + this.client['name'] + '` has no collection `'
                             + collectionName + '`');
-                        error.stack = e.stack;
                         break;
 
                     case 1210: // ERROR_ARANGO_UNIQUE_CONSTRAINT_VIOLATED
                         error = new AlreadyExistsError();
-                        error.stack = e.stack;
                         break;
 
                 }

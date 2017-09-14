@@ -45,7 +45,7 @@ export abstract class Adapter extends EventEmitter {
      */
     public abstract dropCollection (name: string): Promise<boolean>;
 
-    public abstract get (collection: string, id: string): Promise<void | RecordData>;
+    public abstract get (collection: string, id: string): Promise<RecordData>;
 
     /**
      * Get the name of each collection already defined.
@@ -55,7 +55,9 @@ export abstract class Adapter extends EventEmitter {
 
     public abstract findAll (collection: string, filter: Filter): Promise<RecordData[]>;
 
-    public abstract insert (collection: string, data: RecordData): Promise<void | RecordData>;
+    public abstract insert (collection: string, data: RecordData): Promise<RecordData>;
+
+    public abstract insertAll (collection: string, data: RecordData[]): Promise<RecordData[]>;
 
     /**
      * Establish a connection and/or do anything needed in order to accept queries.
@@ -65,9 +67,9 @@ export abstract class Adapter extends EventEmitter {
         return Promise.resolve(true);
     }
 
-    public abstract remove (collection: string, id: string): Promise<void | RecordData>;
+    public abstract remove (collection: string, id: string): Promise<RecordData>;
 
-    public abstract replace(collection: string, id: string, data: RecordData, rev?: string): Promise<void | RecordData>;
+    public abstract replace(collection: string, id: string, data: RecordData, rev?: string): Promise<RecordData>;
 
     /**
      * Remove all records from the collection, but keep the collection itself and all
@@ -76,7 +78,7 @@ export abstract class Adapter extends EventEmitter {
      */
     public abstract truncateCollection (name: string): Promise<boolean>;
 
-    public abstract update (collection: string, id: string, data: RecordData): Promise<void | RecordData>;
+    public abstract update (collection: string, id: string, data: RecordData): Promise<RecordData>;
 }
 
 export abstract class DatabaseAdapter extends Adapter {

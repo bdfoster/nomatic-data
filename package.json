@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run clean && tsc",
-    "clean": "rm -rf src/**/*.js && rm -rf src/**/*.d.ts && rm -rf src/**/*.js.map",
+    "clean": "rm -rf src/**/*.js src/**/*.d.ts src/**/*.js.map src/*.js src/*.d.ts src/*.js.map",
     "lint": "tslint -c tslint.json --project tsconfig.json",
     "lint:fix": "npm run lint -- --fix",
     "test": "rm -rf coverage/ && cross-env NODE_ENV=test nyc mocha --reporter spec"
@@ -44,6 +44,7 @@
   "dependencies": {
     "arangojs": "^5.7.0",
     "lodash.get": "^4.4.2",
+    "lodash.merge": "^4.6.0",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
     "lodash.set": "^4.3.2",

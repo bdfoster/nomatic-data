@@ -11,6 +11,12 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
+services:
+  - docker
+before_install:
+  - docker pull arangodb:latest
+  - docker run -d -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 arangodb:latest
+  - docker ps -a
 script:
   - npm test
 before_deploy:
