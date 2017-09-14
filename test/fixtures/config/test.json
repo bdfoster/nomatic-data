@@ -1,9 +1,9 @@
 {
   "arangodb": {
-    "host": "10.0.2.13",
+    "host": "127.0.0.1",
     "port": 8529,
     "user": "root",
-    "password": "Endigo153!",
-    "name": "nomatic-data_test"
+    "password": "secret",
+    "name": "nomatic-data"
   }
 }
