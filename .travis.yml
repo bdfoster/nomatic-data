@@ -7,7 +7,7 @@ services:
 before_install:
   - ./scripts/arangodb/start.sh
 script:
-  - npm test
+  - npm test:ci
 before_deploy:
   - npm run build
 deploy:
