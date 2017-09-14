@@ -14,8 +14,7 @@ addons:
 services:
   - docker
 before_install:
-  - docker pull arangodb:latest
-  - docker run -d -e ARANGO_NO_AUTH=1 -p 8529:8529 arangodb:latest
+  - docker run --net=host -d arangodb:latest -e ARANGO_NO_AUTH=1 -p 8529:8529 --name arangodb
   - sleep 15
   - docker ps -a
 script:
