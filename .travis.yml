@@ -16,6 +16,7 @@ services:
 before_install:
   - docker pull arangodb:latest
   - docker run -d -e ARANGO_NO_AUTH=1 -p 8529:8529 arangodb:latest
+  - sleep 15
   - docker ps -a
 script:
   - npm test
