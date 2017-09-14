@@ -44,7 +44,6 @@ describe('Query', () => {
             expect(where).to.be.instanceOf(WhereQuery);
             const inst = where.eq(true);
             expect(instance).to.equal(inst);
-            console.log(instance.data);
         });
     });
 });

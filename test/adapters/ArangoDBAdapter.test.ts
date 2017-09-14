@@ -224,7 +224,6 @@ describe('ArangoDBAdapter', () => {
                 limit: 1,
                 id: data[0].id
             }).then((results) => {
-                console.log(results);
                 expect(results.length).to.equal(1);
                 expect(results[0].id).to.equal(data[0].id);
             }).then(done, done);
