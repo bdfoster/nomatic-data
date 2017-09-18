@@ -53,7 +53,17 @@ export abstract class Adapter extends EventEmitter {
      */
     public abstract getCollectionNames (): Promise<string[]>;
 
-    public abstract findAll (collection: string, query?: Query | object): Promise<RecordData[]>;
+    public find(collection: string, query?: object | Query) {
+        if (!query) {
+            return new Query(null);
+        } else if (query instanceof Query) {
+            return this.findAll(collection, query);
+        } else {
+            return this.findAll(collection, new Query(null, query));
+        }
+    }
+
+    public abstract findAll (collection: string, query?: Query): Promise<RecordData[]>;
 
     public abstract insert (collection: string, data: RecordData): Promise<RecordData>;
 

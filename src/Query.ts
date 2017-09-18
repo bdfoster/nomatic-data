@@ -24,17 +24,18 @@ export class Query {
         '$or'
     ];
 
-    private _run: (query: object) => Promise<Record[]>;
-    public data;
 
-    constructor(run?: (query: object) => Promise<Record[]>, data?: object) {
+    public data;
+    public runHandler: (query: object) => Promise<Record[]>;
+
+    constructor(runHandler?: (query: Query) => Promise<Record[]>, data?: object) {
         this.data = {
             $limit: 0,
             $skip: 0,
             $where: {}
         };
 
-        this._run = run || function(query) {
+        this.runHandler = runHandler || function(query) {
             return Promise.resolve([]);
         };
 
@@ -147,7 +148,7 @@ export class Query {
     }
 
     public run() {
-        return this._run(this.data);
+        return this.runHandler(this);
     }
 
     public skip(value: number) {
