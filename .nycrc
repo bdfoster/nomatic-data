@@ -4,7 +4,10 @@
     ".tsx"
   ],
   "exclude": [
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "test",
+    "node_modules",
+    "scripts"
   ],
   "reporter": [
     "html",

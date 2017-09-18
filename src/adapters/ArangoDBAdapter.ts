@@ -1,13 +1,15 @@
 import {Database} from 'arangojs';
 import * as omit from 'lodash.omit';
+import * as get from 'lodash.get';
 import AdapterError from '../errors/AdapterError';
 import AlreadyExistsError from '../errors/AlreadyExistsError';
 import AssertionError from '../errors/AssertionError';
 import NotFoundError from '../errors/NotFoundError';
-import {Filter} from '../index';
 import {RecordData} from '../Record';
 import {AdapterOptions, DatabaseAdapter} from './index';
-import {isNull, inspect} from 'util';
+import {isNull, inspect, log} from 'util';
+import Query from "../Query";
+import set = Reflect.set;
 
 export interface ArangoDBAdapterOptions extends AdapterOptions {
     host: string;
@@ -191,58 +193,17 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         return this.createDatabase(database);
     }
 
-    public async findAll(collection: string, filter: Filter = {}): Promise<RecordData[]> {
-        const example = omit(filter, ['skip', 'limit']);
-
-        if (Object.keys(example).length > 0) {
-
-            return this.findAllByExample(collection, example, filter.skip, filter.limit).catch((error) => {
-                if (error.name === 'ArangoError' && error.code === 404) {
-                    return [];
-                }
-
-                this.handleError(error);
-                return [];
-            });
-        }
-
-        const results = [];
-
-        try {
-            const cursor = await this.client.collection(collection).all({
-                skip: filter.skip,
-                limit: filter.limit
-            });
-
-            await cursor.each((data: RecordData) => {
-                results.push(this.decode(collection, data));
-            });
+    public async findAll(collection: string, query?: Query): Promise<RecordData[]> {
+        return this.client.query(this.queryToAQL(collection, query)).then((cursor) => {
+            return cursor.all();
+        }).then((response) => {
+            const results = [];
+            for (const result of response) {
+                results.push(this.decode(collection, result));
+            }
 
             return results;
-        } catch (error) {
-            this.handleError(error);
-            return [];
-        }
-    }
-
-    public async findAllByExample(collection: string, data: RecordData, skip?: number, limit?: number): Promise<RecordData[]> {
-        const results = [];
-
-        try {
-            const cursor = await this.client.collection(collection).byExample(this.encode(collection, data), {
-                skip: skip,
-                limit: limit
-            });
-
-            await cursor.each((data: object) => {
-                results.push(this.decode(collection, data));
-            });
-
-            return results;
-        } catch (error) {
-            this.handleError(error);
-            return [];
-        }
+        });
     }
 
     public async get(collection: string, id: string): Promise<RecordData> {
@@ -322,6 +283,115 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         }
 
         return Promise.all(promises);
+    }
+
+    public queryToAQL(collection, query: Query) {
+        const lookup = {
+            $and: 'AND',
+            $or: 'OR',
+            $eq: '==',
+            $gt: '>',
+            $gte: '>=',
+            $in: 'IN',
+            $lt: '<',
+            $lte: '<=',
+            $ne: '!=',
+            $nin: 'NOT IN'
+        };
+
+        let s = `FOR doc IN ${collection}`;
+
+        if (query) {
+            const data = query['data'];
+
+            if (data.$where) {
+                for (const logicOperator in data.$where) {
+                    for (let i = 0; i < data.$where[logicOperator].length; i++) {
+                        if (i === 0) {
+                            s += ' FILTER ';
+                        } else {
+                            s += ` ${lookup[logicOperator]} `;
+                        }
+                        for (let key in data.$where[logicOperator][i]) {
+                            let aKey = key;
+                            if (key === 'id') {
+                                aKey = '_key';
+                            } else if (key === 'rev') {
+                                aKey = '_rev';
+                            }
+                            for (const operator in data.$where[logicOperator][i][key]) {
+
+                                s += `doc.${aKey} ${lookup[operator]} `;
+                                let value;
+                                if (typeof data.$where[logicOperator][i][key][operator] === 'string') {
+                                    value = `"${data.$where[logicOperator][i][key][operator]}"`;
+                                } else {
+                                    value = `${data.$where[logicOperator][i][key][operator]}`;
+                                }
+
+                                s += value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (data.$sort) {
+                for (let i = 0; i < data.$sort.length; i++) {
+                    if (i === 0) {
+                        s += ' SORT ';
+                    } else {
+                        s += ', ';
+                    }
+
+                    s += 'doc.';
+
+                    switch (data.$sort[i][0]) {
+                        case 'id':
+                            s += '_key';
+                            break;
+                        case 'rev':
+                            s += '_rev';
+                            break;
+                        default:
+                            s += data.$sort[i][0];
+                    }
+
+                    if (data.$sort[i][1] < 0) {
+                        s += ' DESC'
+                    }
+                }
+            }
+
+            if (data.$limit  !== 0) {
+                if (data.$skip) {
+                    s += ` LIMIT ${data.$skip}, ${data.$limit}`;
+                } else {
+                    s += ` LIMIT ${data.$limit}`;
+                }
+            }
+
+            if (data.$fields && data.$fields.length > 0) {
+                const fields = {};
+                for (let i = 0; i < data.$fields.length; i++) {
+                    let aKey = data.$fields[i];
+                    if (data.$fields[i] === 'id') {
+                        aKey = '_key';
+                    } else if (data.$fields[i] === 'rev') {
+                        aKey = '_rev';
+                    }
+                    set(fields, aKey, `doc.${aKey}`);
+                }
+
+                s += ` RETURN ${inspect(fields, null, Infinity).split(`'`).join('')}`;
+            } else {
+                s += ` RETURN doc`;
+            }
+        } else {
+            s += ` RETURN doc`;
+        }
+
+        return s;
     }
 
     public async remove(collection: string, data: string | RecordData): Promise<RecordData> {

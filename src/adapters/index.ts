@@ -1,6 +1,6 @@
 import {EventEmitter} from 'nomatic-events';
 import {RecordData} from "../Record";
-import {Filter} from "../index";
+import Query from "../Query";
 
 export interface AdapterOptions {
     name: string;
@@ -53,7 +53,7 @@ export abstract class Adapter extends EventEmitter {
      */
     public abstract getCollectionNames (): Promise<string[]>;
 
-    public abstract findAll (collection: string, filter: Filter): Promise<RecordData[]>;
+    public abstract findAll (collection: string, query?: Query | object): Promise<RecordData[]>;
 
     public abstract insert (collection: string, data: RecordData): Promise<RecordData>;
 
