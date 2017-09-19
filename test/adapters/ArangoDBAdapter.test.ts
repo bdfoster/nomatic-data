@@ -274,7 +274,7 @@ describe('ArangoDBAdapter', () => {
                     ]);
                 }
             }).then(done, done);
-        })
+        });
     });
 
     describe('#getCollectionNames()', () => {

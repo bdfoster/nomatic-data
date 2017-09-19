@@ -1,4 +1,4 @@
-import Record from './Record';
+import Record, {RecordData} from './Record';
 import WhereQuery from './WhereQuery';
 import * as get from 'lodash.get';
 import * as set from 'lodash.set';
@@ -26,9 +26,9 @@ export class Query {
 
 
     public data;
-    public runHandler: (query: object) => Promise<Record[]>;
+    public runHandler: (query: object) => Promise<RecordData[]>;
 
-    constructor(runHandler?: (query: Query) => Promise<Record[]>, data?: object) {
+    constructor(runHandler?: (query: Query) => Promise<RecordData[]>, data?: object) {
         this.data = {
             $limit: 0,
             $skip: 0,
