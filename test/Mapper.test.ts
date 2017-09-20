@@ -37,7 +37,7 @@ describe('Mapper', () => {
             adapter: new ArangoDBAdapter(config),
             name: 'person',
         });
-        people.open().then(() => {
+        people.load().then(() => {
             return people.truncate().then(() => {
                 records.push(people.createRecord(data[0]));
                 records.push(people.createRecord(data[1]));

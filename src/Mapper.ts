@@ -138,7 +138,7 @@ export class Mapper extends EventEmitter {
         return this.insert(record, validate);
     }
 
-    public async open() {
+    public async load() {
         try {
             await this.adapter.ensureCollectionExists(this.collection);
             return this;
@@ -190,7 +190,7 @@ export class Mapper extends EventEmitter {
 
         if (validate) {
             try {
-                await data.validate();
+                await record.validate();
             } catch (error) {
                 throw error;
             }
