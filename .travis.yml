@@ -12,6 +12,8 @@ before_install:
   - ./scripts/arangodb/start.sh
 before_script:
   - npm prune
+script:
+  - npm run test:ci
 after_success:
   - npm install coveralls
   - npm run coveralls
