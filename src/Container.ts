@@ -37,7 +37,7 @@ export interface ContainerOptions {
     };
 }
 
-export default class Container extends EventEmitter {
+export class Container extends EventEmitter {
     private _isLoaded: boolean;
     private _isLoading: boolean;
     public readonly mappers: ContainerMappers;
@@ -234,3 +234,5 @@ export default class Container extends EventEmitter {
         return this.mappers[mapper].truncate();
     }
 }
+
+export default Container;

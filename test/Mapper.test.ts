@@ -1,7 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import Mapper from '../src/Mapper';
-import Record from '../src/Record';
+import {Mapper, Record} from '../src';
 import * as util from 'util';
 import NotFoundError from '../src/errors/NotFoundError';
 import ArangoDBAdapter from '../src/adapters/ArangoDBAdapter';

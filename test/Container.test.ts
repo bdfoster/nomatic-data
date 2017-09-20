@@ -1,7 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import Container from '../src/Container';
-import ArangoDBAdapter from '../src/adapters/ArangoDBAdapter';
+import {ArangoDBAdapter, Container} from '../src';
 import people from './fixtures/data/people';
 import accounts from './fixtures/data/accounts';
 import {RecordData} from '../src/Record';
