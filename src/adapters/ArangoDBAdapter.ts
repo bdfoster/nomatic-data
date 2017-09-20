@@ -36,6 +36,8 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         });
 
         this.name = options.name;
+        this.password = options.password;
+        this.user = options.user;
     }
 
     public get name() {
@@ -54,7 +56,10 @@ export class ArangoDBAdapter extends DatabaseAdapter {
 
     public set password(password: string) {
         this._password = password;
-        this.client['useBasicAuth'](this._user, this._password);
+
+        if (this.user) {
+            this.client['useBasicAuth'](this._user, this._password);
+        }
     }
 
     private _user: string;
@@ -194,6 +199,7 @@ export class ArangoDBAdapter extends DatabaseAdapter {
     }
 
     public async findAll(collection: string, query?: Query): Promise<RecordData[]> {
+        const q = this.queryToAQL(collection, query);
         return this.client.query(this.queryToAQL(collection, query)).then((cursor) => {
             return cursor.all();
         }).then((response) => {
@@ -285,6 +291,13 @@ export class ArangoDBAdapter extends DatabaseAdapter {
         return Promise.all(promises);
     }
 
+    /**
+     * Parse a Query instance into an AQL string
+     * @todo This really needs to be cleaned up.
+     * @param collection The collection to execute the query on.
+     * @param {Query} query The Query instance.
+     * @returns {string} The AQL string.
+     */
     public queryToAQL(collection, query: Query) {
         const lookup = {
             $and: 'AND',
@@ -320,16 +333,28 @@ export class ArangoDBAdapter extends DatabaseAdapter {
                                 aKey = '_rev';
                             }
                             for (const operator in data.$where[logicOperator][i][key]) {
-
-                                s += `doc.${aKey} ${lookup[operator]} `;
-                                let value;
-                                if (typeof data.$where[logicOperator][i][key][operator] === 'string') {
-                                    value = `"${data.$where[logicOperator][i][key][operator]}"`;
+                                let op;
+                                if (operator === '$exists') {
+                                    if (!data.$where[logicOperator][i][key][operator]) {
+                                        op = ` == null`;
+                                    } else {
+                                        op = ` != null`;
+                                    }
                                 } else {
-                                    value = `${data.$where[logicOperator][i][key][operator]}`;
+                                    op = lookup[operator];
                                 }
 
-                                s += value;
+                                s += `doc.${aKey} ${op}`;
+                                let value;
+                                if (operator !== '$exists') {
+                                    if (typeof data.$where[logicOperator][i][key][operator] === 'string') {
+                                        value = ` "${data.$where[logicOperator][i][key][operator]}"`;
+                                    } else {
+                                        value = ` ${data.$where[logicOperator][i][key][operator]}`;
+                                    }
+
+                                    s += value;
+                                }
                             }
                         }
                     }

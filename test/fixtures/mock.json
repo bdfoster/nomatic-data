@@ -1,4 +1,4 @@
-[{"id":"3560168820928928","author":{"firstName":"Harcourt","lastName":"Jertz"},"gender":"Male","isActive":false,"status":"inactive","string":"Expanded leading edge project","boolean":true},
+[{"id":"3560168820928928","author":{"firstName":"Harcourt","lastName":"Jertz", "name": "Harcourt Jertz"},"gender":"Male","isActive":false,"status":"inactive","string":"Expanded leading edge project","boolean":true},
 {"id":null,"author":{"firstName":"Alain","lastName":"Rumbold"},"gender":"Male","isActive":false,"status":"inactive","string":"Secured regional collaboration","boolean":true},
 {"id":null,"author":{"firstName":"Kerwinn","lastName":"Breming"},"gender":"Male","isActive":false,"status":"inactive","string":"Innovative 4th generation project","boolean":true},
 {"id":null,"author":{"firstName":"Kass","lastName":"Scarsbrook"},"gender":"Female","isActive":true,"status":"active","string":"Cross-platform 24/7 knowledge user","boolean":false},

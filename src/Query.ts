@@ -75,13 +75,20 @@ export class Query {
         let value = get(data, '$where.' + path);
 
         if (value === undefined) {
+            let altParts = path.split('.');
+            let altOperation = '';
+            let altPrefix = '';
             if (parts[(parts.length - 1)].startsWith('$')) {
-                const alternativePath = '$where.' + path.split(']')[0] + ']["' + key.substr(0, (key.length - parts[(parts.length - 1)].length - 1)) + '"].' + parts[(parts.length - 1)];
-                value = get(data, alternativePath);
-            } else {
-                const alternativePath = '$where.' + path.split(']')[0] + ']["' + key + '"]';
-                value = get(data, alternativePath);
+                altOperation = `.${altParts.pop()}`;
             }
+
+            if (parts[0].startsWith('$')) {
+                altPrefix = `.${altParts.shift()}`;
+            }
+
+            let altPath = `${altPrefix}['${altParts.join('.')}']${altOperation}`;
+
+            value = get(data, `$where${altPath}`);
         }
 
         if (!parts[(parts.length - 1)].startsWith('$')) {
@@ -91,13 +98,13 @@ export class Query {
                     this.parse(data, `${path}.${i}`, logicOperator, `${key}.${i}`);
                 }
             } else {
-                this.where(key, '$eq', value, logicOperator);
+                this[logicOperator.substr(1)](key).eq(value);
             }
         } else if (Query.COMPARISON_OPERATORS.indexOf(parts[(parts.length - 1)]) !== -1 || Query.ELEMENT_OPERATORS.indexOf(parts[(parts.length - 1)]) !== -1) {
             // Comparison or element operator
             const operator = parts.pop();
             key = key.substr(0, (key.length - operator.length - 1));
-            this.where(key, operator, value, logicOperator);
+            this[logicOperator.substr(1)](key)[operator.substr(1)](value);
         } else if (Query.LOGIC_OPERATORS.indexOf(parts[(parts.length - 1)]) !== -1) {
             logicOperator = parts.pop();
 

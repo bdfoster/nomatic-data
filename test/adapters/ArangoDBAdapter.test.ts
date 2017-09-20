@@ -235,6 +235,19 @@ describe('ArangoDBAdapter', () => {
             }).then(done, done);
         });
 
+        it('should return documents where only `author.name` exists', (done) => {
+            instance.findAll(collectionName, new Query(null, {
+                $where: {
+                    'author.name': {
+                        $exists: true
+                    }
+                }
+            })).then((results) => {
+                expect(results.length).to.equal(1);
+                expect(results[0].id).to.equal('3560168820928928');
+            }).then(done, done);
+        });
+
         it('should only return one result when `$limit` is 1 and where `id` is ' + data[0]['id'], (done) => {
             instance.findAll(collectionName, new Query(null, {
                 $limit: 1,
@@ -312,12 +325,34 @@ describe('ArangoDBAdapter', () => {
                 expect(list.length).to.equal(0);
             }).then(done, done);
         });
+
+        it('should throw when trying to drop a system collection', (done) => {
+            instance.dropCollection('_invalid').then(() => {
+                throw new Error('Did not throw!');
+            }).catch((error) => {
+                if (error.message !== 'Cannot delete a system collection') {
+                    throw error;
+                }
+            }).then(done, done);
+        });
     });
 
     describe('#truncateDatabase', () => {
         it('should truncate the current database', (done) => {
             instance.truncateDatabase().then((isSuccessful) => {
                 expect(isSuccessful).to.equal(true);
+            }).then(done, done);
+        });
+    });
+
+    describe('#dropDatabase', () => {
+        it('should throw when dropping system database', (done) => {
+            instance.dropDatabase('_invalid').then(() => {
+                throw new Error('Did not throw!');
+            }).catch((error) => {
+                if (error.message !== 'Cannot delete a system database') {
+                    throw error;
+                }
             }).then(done, done);
         });
     });
