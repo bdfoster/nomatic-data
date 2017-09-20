@@ -1,17 +1,12 @@
 language: node_js
-cache:
-  directories:
-    - node_modules
 notifications:
   email: false
 node_js:
   - '8'
 services:
   - docker
-before_install:
-  - ./scripts/arangodb/start.sh
 before_script:
-  - npm prune
+  - ./scripts/arangodb/start.sh
 script:
   - npm run test:ci
 after_success:
