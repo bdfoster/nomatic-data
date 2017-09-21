@@ -1,2 +1,10 @@
+/.idea/
 /test/
 /docs/
+.travis.yml
+.nycrc
+.npmrc
+tslint.json
+coverage/
+tsconfig.json
+.nyc_output/
