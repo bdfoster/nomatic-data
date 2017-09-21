@@ -10,6 +10,7 @@
     "test": "rm -rf coverage/ && cross-env NODE_ENV=test nyc mocha --reporter spec",
     "test:ci": "NODE_ENV=ci nyc mocha --reporter spec",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "docs": "typedoc --out ./docs/ --module commonjs --name nomatic-logging --hideGenerator --mode file --excludeExternals --excludePrivate ./src",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
+    "@types/node": "^8.0.28",
     "chai": "^4.1.2",
     "cross-env": "^5.0.5",
     "mocha": "^3.5.3",
@@ -42,6 +44,7 @@
     "source-map-support": "^0.4.18",
     "ts-node": "^3.3.0",
     "tslint": "^5.7.0",
+    "typedoc": "^0.8.0",
     "typescript": "^2.5.2"
   },
   "dependencies": {
@@ -55,7 +58,5 @@
     "lodash.set": "^4.3.2",
     "lodash.unset": "^4.5.2",
     "nomatic-events": "^2.1.1"
-  },
-  "version": "0.0.0-semantically-released"
-
+  }
 }
