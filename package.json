@@ -2,6 +2,7 @@
   "name": "nomatic-data",
   "description": "Extensible Object-relational Mapper for Node.js",
   "main": "src/index.js",
+  "typings": "src/index.d.ts",
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "rm -rf src/**/*.js src/**/*.d.ts src/**/*.js.map src/*.js src/*.d.ts src/*.js.map",
