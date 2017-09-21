@@ -10,7 +10,6 @@ before_script:
 script:
   - npm run test:ci
 after_success:
-  - npm install coveralls
   - npm run coveralls
   - npm run build
   - npm run semantic-release
