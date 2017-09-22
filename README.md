@@ -21,7 +21,7 @@ package, but you can make your own by implementing either the `Adapter` or `Data
 for MongoDB and LokiJS are coming in the near future.
 
 Each `Adapter` is operated by one or more `Mapper` instances. Each `Mapper` instance is managed by a `Container`
-instance.
+instance. A `Mapper` will generate `Record` instances, which store the state of each document in the collection.
 
 ### Installation
 You can install from [npm](https://www.npmjs.com/package/nomatic-data) by doing:

@@ -63,8 +63,8 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<h1 id="nomatic-data">nomatic-data</h1>
-				<p>Extensible Object-relational Mapping Framework for Node.js</p>
-				<p><a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="Semantic Release"></a>
+				<p><a href="https://greenkeeper.io/"><img src="https://badges.greenkeeper.io/bdfoster/nomatic-data.svg" alt="Greenkeeper badge"></a>
+					<a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="Semantic Release"></a>
 					<a href="https://github.com/bdfoster/nomatic-data/releases"><img src="https://img.shields.io/github/release/bdfoster/nomatic-data.svg" alt="GitHub release"></a>
 					<a href="https://www.npmjs.com/package/nomatic-data"><img src="https://img.shields.io/npm/v/nomatic-data.svg" alt="npm"></a>
 					<a href="https://travis-ci.org/bdfoster/nomatic-data"><img src="https://travis-ci.org/bdfoster/nomatic-data.svg?branch=greenkeeper%2Finitial" alt="Build Status"></a>
@@ -72,6 +72,7 @@
 					<a href="https://david-dm.org/bdfoster/nomatic-data"><img src="https://david-dm.org/bdfoster/nomatic-data/status.svg" alt="dependencies Status"></a>
 					<a href="https://david-dm.org/bdfoster/nomatic-data?type=dev"><img src="https://david-dm.org/bdfoster/nomatic-data/dev-status.svg" alt="devDependencies Status"></a>
 				<a href="https://github.com/bdfoster/nomatic-data/blob/master/LICENSE"><img src="https://img.shields.io/github/license/bdfoster/nomatic-data.svg" alt="License"></a></p>
+				<p>Extensible Object-relational Mapping Framework for Node.js</p>
 				<h3 id="overview">Overview</h3>
 				<p>Written in TypeScript, this package uses Active Record, Data Mapper, and Adapter
 				patterns to create an Object-Relational Mapping (ORM) tool that provides flexibility and extensibility.</p>
@@ -79,7 +80,7 @@
 					package, but you can make your own by implementing either the <code>Adapter</code> or <code>DatabaseAdapter</code> abstract classes.Adapters
 				for MongoDB and LokiJS are coming in the near future.</p>
 				<p>Each <code>Adapter</code> is operated by one or more <code>Mapper</code> instances. Each <code>Mapper</code> instance is managed by a <code>Container</code>
-				instance.</p>
+				instance. A <code>Mapper</code> will generate <code>Record</code> instances, which store the state of each document in the collection.</p>
 				<h3 id="installation">Installation</h3>
 				<p>You can install from <a href="https://www.npmjs.com/package/nomatic-data">npm</a> by doing:</p>
 				<pre><code>npm i --<span class="hljs-keyword">save</span> nomatic-<span class="hljs-keyword">data</span>
@@ -160,9 +161,9 @@
 });
 
 <span class="hljs-comment">/**
- * The `load()` method will establish a connection with the database server, ensure that the
- * database exists (or it will try and create it), and ensure all collection exists (or will
- * create them).
+ * The `load()` method will establish a connection with the database server, 
+ * ensure that the database exists (or it will try and create it), and 
+ * ensure all collection exists (or will create them).
  */</span>
 store.load().then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
     <span class="hljs-keyword">return</span> store.insertAll(<span class="hljs-string">'people'</span>, [
@@ -173,12 +174,64 @@ store.load().then(<span class="hljs-function"><span class="hljs-params">()</span
     <span class="hljs-comment">/**
      * This is one way you can query for documents.
      */</span>
-    store.find(<span class="hljs-string">'people'</span>).where(<span class="hljs-string">'firstName'</span>).eq(<span class="hljs-string">'Jane'</span>).run().then(<span class="hljs-function">(<span class="hljs-params">results</span>) =&gt;</span> {
+    store.find(<span class="hljs-string">'people'</span>)
+        .where(<span class="hljs-string">'lastName'</span>)
+        .eq(<span class="hljs-string">'Doe'</span>)
+        .sort(<span class="hljs-string">'firstName'</span>, <span class="hljs-number">1</span>)
+        .limit(<span class="hljs-number">2</span>)
+        .skip(<span class="hljs-number">1</span>)
+        .run().then(<span class="hljs-function">(<span class="hljs-params">results</span>) =&gt;</span> {
         <span class="hljs-comment">//...</span>
-    })
+    });
+
+    <span class="hljs-comment">/**
+     * You can also query much like how MongoDB query filters. The supported operators are:
+     *  - $and
+     *      Syntax: { $where: { $and: [ &lt;expression&gt;, ..., &lt;expression&gt; }, ... }
+     *  - $or
+     *      Syntax: { $where: { $or: [ &lt;expression&gt;, ..., &lt;expression&gt; }, ... }
+     *  - $eq (expression)
+     *      Syntax: { &lt;property&gt;: { $eq: { &lt;value&gt; } }
+     *  - $ne (expression)
+     *      Syntax: { &lt;property&gt;: { $ne: { &lt;value&gt; } }
+     *  - $gt (expression)
+     *      Syntax: { &lt;property&gt;: { $gt: { &lt;value&gt; } }
+     *  - $gte (expression)
+     *      Syntax: { &lt;property&gt;: { $gte: { &lt;value&gt; } }
+     *  - $lt (expression)
+     *      Syntax: { &lt;property&gt;: { $lt: { &lt;value&gt; } }
+     *  - $lte (expression)
+     *      Syntax: { &lt;property&gt;: { $lte: { &lt;value&gt; } }
+     *  - $in (expression)
+     *      Syntax: { &lt;property&gt;: { $in: [ &lt;value&gt;, ..., &lt;value&gt; ] }
+     *  - $nin (expression)
+     *      Syntax: { &lt;property&gt;: { $nin: [ &lt;value&gt;, ..., &lt;value&gt; ] }
+     *  - $exists (expression)
+     *      Syntax: { &lt;property&gt;: { $exists: &lt;true | false&gt; } }
+     * 
+     * An expression always follows this form: 
+     *  { &lt;property&gt;: { &lt;operator&gt;: &lt;value&gt; | [ &lt;value&gt;, ..., &lt;value&gt;] }
+     *  
+     * All the operators above can only be used in a $where object. 
+     */</span>
+    store.findAll(<span class="hljs-string">'people'</span>, {
+        <span class="hljs-attr">$where</span>: {
+            <span class="hljs-attr">firstName</span>: <span class="hljs-string">'Jane'</span>
+        },
+        <span class="hljs-attr">$sort</span>: [
+            [<span class="hljs-string">'firstName'</span>, <span class="hljs-number">1</span>]
+        ],
+        <span class="hljs-attr">$limit</span>: <span class="hljs-number">2</span>,
+        <span class="hljs-attr">$skip</span>: <span class="hljs-number">1</span>
+    }).then(<span class="hljs-function">(<span class="hljs-params">results</span>) =&gt;</span> {
+        <span class="hljs-comment">//...</span>
+    });
 });
 </code></pre>
-				<p>The API (generated by <a href="http://typedoc.org/">TypeDoc</a>) can be found <a href="https://bdfoster.github.io/nomatic-data/">here</a>.</p>
+				<p>The API documentation (generated by <a href="http://typedoc.org/">TypeDoc</a>) can be found
+				<a href="https://bdfoster.github.io/nomatic-data/">here</a>.</p>
+				<p>More documentation will be added as moves forward, but if you have a question please feel free to
+				<a href="https://github.com/bdfoster/nomatic-data/issues">open an issue</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
