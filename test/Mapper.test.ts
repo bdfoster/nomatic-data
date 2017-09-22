@@ -150,6 +150,18 @@ describe('Mapper', () => {
     });
 
     describe('#update()', () => {
+        it('should update record given `data` is not a Record instance', (done) => {
+            const data = records[0].serialize();
+
+            data.middleName = 'David';
+            people.update(data).then((result) => {
+                expect(result.middleName).to.equal(data.middleName);
+                expect(result.rev).to.not.equal(data.rev);
+                expect(result).to.be.an.instanceOf(Record);
+                records[0] = result;
+            }).then(done, done);
+        });
+
         it('should throw if revision is invalid', (done) => {
             const rev = '_Vaactly---';
             records[0].rev = rev;

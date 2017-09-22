@@ -99,7 +99,7 @@ export class Mapper extends EventEmitter {
         if (!(data instanceof Record)) {
             const old = await this.get(data.id);
             merge(old, data);
-            record = data;
+            record = old;
         } else {
             record = data;
         }
