@@ -162,6 +162,17 @@ describe('Mapper', () => {
             }).then(done, done);
         });
 
+        it('should update record when a property is set to null', (done) => {
+            const oldRev = records[0].rev;
+            records[0].middleName = null;
+            people.update(records[0]).then((result) => {
+                expect(result.middleName).to.not.exist;
+                expect(result.rev).to.not.equal(oldRev);
+                expect(result).to.be.an.instanceOf(Record);
+                records[0] = result;
+            }).then(done, done);
+        });
+
         it('should throw if revision is invalid', (done) => {
             const rev = '_Vaactly---';
             records[0].rev = rev;

@@ -106,14 +106,15 @@ export class Container extends EventEmitter {
     }
 
     private defineMapper(name: string, options: ContainerMapperOptions = {}) {
-        const schema = {
+        const schema = this.normalizeSchema({
             $async: true,
             type: 'object',
             properties: options.properties || {},
             required: options.required || [],
             additionalProperties: options.additionalProperties || true,
 
-        };
+        });
+
         let validate;
 
         if (this.mappers.hasOwnProperty(name)) {
@@ -161,6 +162,25 @@ export class Container extends EventEmitter {
         return this.mappers[name];
     }
 
+    private normalizeSchema(schema: object) {
+        if (schema.hasOwnProperty('properties')) {
+            for (const key of Object.keys(schema['properties'])) {
+                const child = schema['properties'][key];
+
+                if (!schema.hasOwnProperty('required') || schema['required'].indexOf(key) === -1) {
+                    if (child.hasOwnProperty('type')) {
+                        if (child['type'] === 'object') {
+                            this.normalizeSchema(child);
+                        }
+
+                        child['type'] = [child['type'], 'null'];
+                    }
+                }
+            }
+        }
+
+        return schema;
+    }
 
     public createRecord(mapper: string, data: RecordData): Record {
         return this.mappers[mapper].createRecord(data || null);
