@@ -7,7 +7,6 @@ services:
   - docker
 before_script:
   - ./scripts/arangodb/start.sh
-after_install:
   - npm link
   - npm link nomatic-data
 script:
