@@ -84,8 +84,29 @@
 				<h3 id="installation">Installation</h3>
 				<p>You can install from <a href="https://www.npmjs.com/package/nomatic-data">npm</a> by doing:</p>
 				<pre><code>npm i --<span class="hljs-keyword">save</span> nomatic-<span class="hljs-keyword">data</span>
-</code></pre><h3 id="example">Example</h3>
-				<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { ArangoDBAdapter, Container } <span class="hljs-keyword">from</span> <span class="hljs-string">'nomatic-data'</span>;
+</code></pre><p>If you want to write your own adapter, you can stop there. Otherwise, you&#39;ll need to install an adapter:</p>
+				<table>
+					<thead>
+						<tr>
+							<th style="text-align:left">Adapter</th>
+							<th style="text-align:left">Author</th>
+							<th style="text-align:left">Links</th>
+							<th style="text-align:left">Installation</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td style="text-align:left"><a href="https://arangodb.com">ArangoDB</a></td>
+							<td style="text-align:left"><a href="https://github.com/bdfoster">bdfoster</a></td>
+							<td style="text-align:left"><a href="https://npmjs.com/package/nomatic-arangodb-adapter">npm</a>, <a href="https://github.com/bdfoster/nomatic-arangodb-adapter">GitHub</a></td>
+							<td style="text-align:left"><code>npm i --save nomatic-arangodb-adapter</code></td>
+						</tr>
+					</tbody>
+				</table>
+				<h3 id="example">Example</h3>
+				<p>This example uses the <a href="https://npmjs.com/package/nomatic-arangodb-adapter">ArangoDB</a> adapter.</p>
+				<pre><code class="lang-javascript"><span class="hljs-keyword">import</span> { Container } <span class="hljs-keyword">from</span> <span class="hljs-string">'nomatic-data'</span>;
+<span class="hljs-keyword">import</span> ArangoDBAdapter <span class="hljs-keyword">from</span> <span class="hljs-string">'nomatic-arangodb-adapter'</span>;
 
 <span class="hljs-keyword">const</span> adapter = <span class="hljs-keyword">new</span> ArangoDBAdapter({
     <span class="hljs-attr">name</span>: <span class="hljs-string">'my-database'</span>,
@@ -254,9 +275,6 @@ store.load().then(<span class="hljs-function"><span class="hljs-params">()</span
 						<a href="classes/alreadyexistserror.html" class="tsd-kind-icon">Already<wbr>Exists<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
-						<a href="classes/arangodbadapter.html" class="tsd-kind-icon">ArangoDBAdapter</a>
-					</li>
-					<li class=" tsd-kind-class">
 						<a href="classes/assertionerror.html" class="tsd-kind-icon">Assertion<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-class">
@@ -288,9 +306,6 @@ store.load().then(<span class="hljs-function"><span class="hljs-params">()</span
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/adapteroptions.html" class="tsd-kind-icon">Adapter<wbr>Options</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="interfaces/arangodbadapteroptions.html" class="tsd-kind-icon">ArangoDBAdapter<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/containermapperoptions.html" class="tsd-kind-icon">Container<wbr>Mapper<wbr>Options</a>
