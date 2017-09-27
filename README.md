@@ -16,9 +16,8 @@ Extensible Object-relational Mapping Framework for Node.js
 Written in TypeScript, this package uses Active Record, Data Mapper, and Adapter
 patterns to create an Object-Relational Mapping (ORM) tool that provides flexibility and extensibility.
 
-Adapters allow you to connect to a variety of data sources. Currently, an adapter for ArangoDB is included in this
-package, but you can make your own by implementing either the `Adapter` or `DatabaseAdapter` abstract classes.Adapters 
-for MongoDB and LokiJS are coming in the near future.
+Adapters allow you to connect to a variety of data sources. You can use a pre-built Adapter (see table below), 
+or you can write your own by implementing either the [Adapter](https://bdfoster.github.io/nomatic-data/classes/adapter.html) or [DatabaseAdapter](https://bdfoster.github.io/nomatic-data/classes/databaseadapter.html) abstract classes.
 
 Each `Adapter` is operated by one or more `Mapper` instances. Each `Mapper` instance is managed by a `Container`
 instance. A `Mapper` will generate `Record` instances, which store the state of each document in the collection.
