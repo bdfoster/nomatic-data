@@ -3,7 +3,7 @@ import {expect} from 'chai';
 import {Mapper, Record} from '../src';
 import * as util from 'util';
 import NotFoundError from '../src/errors/NotFoundError';
-import ArangoDBAdapter from '../src/adapters/ArangoDBAdapter';
+import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 
 process.on('unhandledRejection', (reason) => {
     console.error(reason);
@@ -219,7 +219,7 @@ describe('Mapper', () => {
             people.remove(data[0]['id']).then(() => {
                 return done('Did not throw!');
             }).catch((e) => {
-                if (e instanceof NotFoundError) {
+                if (e.name === 'NotFoundError') {
                     return done();
                 }
                 console.error(e);

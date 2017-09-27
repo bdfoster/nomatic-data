@@ -3,7 +3,7 @@ import {expect} from 'chai';
 import Query from '../src/Query';
 import WhereQuery from '../src/WhereQuery';
 import queries from './fixtures/queries';
-import {inspect} from 'util';
+
 describe('Query', () => {
     let instance;
     before(() => {
