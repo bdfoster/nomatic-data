@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {Record, RecordData} from '../src/Record';
+import {Record, RecordData} from '../src';
 
 describe('Record', () => {
     let number = 100;

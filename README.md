@@ -29,9 +29,18 @@ You can install from [npm](https://www.npmjs.com/package/nomatic-data) by doing:
 npm i --save nomatic-data
 ```
 
+If you want to write your own adapter, you can stop there. Otherwise, you'll need to install an adapter:
+
+| Adapter | Author | Links | Installation |
+| :--- | :--- | :--- | :--- |
+| [ArangoDB](https://arangodb.com) | [bdfoster](https://github.com/bdfoster) | [npm](https://npmjs.com/package/nomatic-arangodb-adapter), [GitHub](https://github.com/bdfoster/nomatic-arangodb-adapter) | `npm i --save nomatic-arangodb-adapter` |
+
 ### Example
+This example uses the [ArangoDB](https://npmjs.com/package/nomatic-arangodb-adapter) adapter.
+
 ```javascript
-import { ArangoDBAdapter, Container } from 'nomatic-data';
+import { Container } from 'nomatic-data';
+import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 
 const adapter = new ArangoDBAdapter({
     name: 'my-database',

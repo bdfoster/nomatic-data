@@ -1,6 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
-import {ArangoDBAdapter, Container} from '../src';
+import {Container} from '../src';
+import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 import people from './fixtures/data/people';
 import accounts from './fixtures/data/accounts';
 import {RecordData} from '../src/Record';
