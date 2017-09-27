@@ -8,20 +8,15 @@ export interface AdapterOptions {
 }
 
 export abstract class Adapter extends EventEmitter {
-    private _name: string;
 
     constructor (options: AdapterOptions) {
         super(options.maxListeners || 0);
         this.name = options.name;
     }
 
-    public get name () {
-        return this._name;
-    }
+    public abstract get name();
 
-    public set name (name: string) {
-        this._name = name;
-    }
+    public abstract set name(name: string);
 
     /**
      * Create a collection to store records.
