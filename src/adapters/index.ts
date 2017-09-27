@@ -1,6 +1,6 @@
 import {EventEmitter} from 'nomatic-events';
-import {RecordData} from "../Record";
-import Query from "../Query";
+import Query from '../Query';
+import {RecordData} from '../Record';
 
 export interface AdapterOptions {
     name: string;

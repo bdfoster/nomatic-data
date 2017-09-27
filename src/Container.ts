@@ -6,13 +6,13 @@ import {Adapter} from './adapters/index';
 import AlreadyExistsError from './errors/AlreadyExistsError';
 import ValidationError from './errors/ValidationError';
 import Mapper, {MapperHookFunction, MapperOptions} from './Mapper';
+import Query from './Query';
 import {RecordData, RecordVirtualProperties} from './Record';
 import Record from './Record';
-import Query from "./Query";
 
 export interface ContainerMapperOptions {
     properties?: object;
-    required?: Array<string>;
+    required?: string[];
     additionalProperties?: boolean | object;
     virtuals?: RecordVirtualProperties;
     afterInsert?: MapperHookFunction | MapperHookFunction[];

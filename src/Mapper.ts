@@ -1,9 +1,9 @@
 import {Database, DocumentCollection, Graph} from 'arangojs';
+import * as merge from 'lodash.merge';
 import {EventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
+import Query from './Query';
 import {Record, RecordData, RecordOptions, RecordValidateFunction, RecordVirtualProperties} from './Record';
-import * as merge from 'lodash.merge';
-import Query from "./Query";
 export type MapperHookFunction = (record: Record) => void;
 
 export interface MapperOptions {

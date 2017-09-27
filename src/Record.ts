@@ -3,7 +3,7 @@ import * as pick from 'lodash.pick';
 import * as set from 'lodash.set';
 import * as unset from 'lodash.unset';
 import {EventEmitter} from 'nomatic-events';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined} from 'util';
 
 export type RecordOperation = 'add' | 'replace' | 'remove';
 export type RecordSaveFunction = (record: Record) => Promise<boolean | RecordData | Record>;

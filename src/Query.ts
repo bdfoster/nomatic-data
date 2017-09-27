@@ -1,7 +1,7 @@
-import Record, {RecordData} from './Record';
-import WhereQuery from './WhereQuery';
 import * as get from 'lodash.get';
 import * as set from 'lodash.set';
+import Record, {RecordData} from './Record';
+import WhereQuery from './WhereQuery';
 
 export class Query {
     static COMPARISON_OPERATORS = [
@@ -75,7 +75,7 @@ export class Query {
         let value = get(data, '$where.' + path);
 
         if (value === undefined) {
-            let altParts = path.split('.');
+            const altParts = path.split('.');
             let altOperation = '';
             let altPrefix = '';
             if (parts[(parts.length - 1)].startsWith('$')) {
@@ -86,7 +86,7 @@ export class Query {
                 altPrefix = `.${altParts.shift()}`;
             }
 
-            let altPath = `${altPrefix}['${altParts.join('.')}']${altOperation}`;
+            const altPath = `${altPrefix}['${altParts.join('.')}']${altOperation}`;
 
             value = get(data, `$where${altPath}`);
         }

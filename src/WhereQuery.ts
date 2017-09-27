@@ -34,7 +34,7 @@ export class WhereQuery {
         return this.set('$gte', value);
     }
 
-    public in(value: Array<boolean | string | number>) {
+    public in(value: (boolean | string | number)[]) {
         return this.set('$in', value);
     }
 
@@ -47,10 +47,10 @@ export class WhereQuery {
     }
 
     public ne(value: boolean | number | string) {
-        return this.set('$ne', value)
+        return this.set('$ne', value);
     }
 
-    public nin(value: Array<boolean | string | number>) {
+    public nin(value: (boolean | string | number)[]) {
         return this.set('$nin', value);
     }
 }
