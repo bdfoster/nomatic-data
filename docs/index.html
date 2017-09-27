@@ -76,9 +76,8 @@
 				<h3 id="overview">Overview</h3>
 				<p>Written in TypeScript, this package uses Active Record, Data Mapper, and Adapter
 				patterns to create an Object-Relational Mapping (ORM) tool that provides flexibility and extensibility.</p>
-				<p>Adapters allow you to connect to a variety of data sources. Currently, an adapter for ArangoDB is included in this
-					package, but you can make your own by implementing either the <code>Adapter</code> or <code>DatabaseAdapter</code> abstract classes.Adapters
-				for MongoDB and LokiJS are coming in the near future.</p>
+				<p>Adapters allow you to connect to a variety of data sources. You can use a pre-built Adapter (see table below),
+				or you can write your own by implementing either the <a href="https://bdfoster.github.io/nomatic-data/classes/adapter.html">Adapter</a> or <a href="https://bdfoster.github.io/nomatic-data/classes/databaseadapter.html">DatabaseAdapter</a> abstract classes.</p>
 				<p>Each <code>Adapter</code> is operated by one or more <code>Mapper</code> instances. Each <code>Mapper</code> instance is managed by a <code>Container</code>
 				instance. A <code>Mapper</code> will generate <code>Record</code> instances, which store the state of each document in the collection.</p>
 				<h3 id="installation">Installation</h3>
