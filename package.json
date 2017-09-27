@@ -11,7 +11,7 @@
     "test": "rm -rf coverage/ && cross-env NODE_ENV=test nyc mocha --reporter spec",
     "test:ci": "NODE_ENV=ci nyc mocha --reporter spec",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "docs": "typedoc --out ./docs/ --module commonjs --name nomatic-data --hideGenerator --mode file --excludeExternals --excludePrivate --includeDeclarations ./src",
+    "docs": "rm -rf docs/ && typedoc --out ./docs/ --module commonjs --name nomatic-data --hideGenerator --mode file --excludeExternals --excludePrivate --includeDeclarations ./src",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
