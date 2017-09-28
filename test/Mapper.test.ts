@@ -1,7 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
 import {Mapper, Record} from '../src';
-import * as util from 'util';
 import NotFoundError from '../src/errors/NotFoundError';
 import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 
@@ -183,46 +182,6 @@ describe('Mapper', () => {
                 if (e.name === 'AssertionError' && e.message.startsWith('Assertion Error: expected `rev` to equal `' + rev)) {
                     return done();
                 }
-                return done(e);
-            });
-        });
-    });
-
-    describe('#remove()', () => {
-        it('should delete the saved Record', (done) => {
-            people.remove(data[0]).then(() => {
-                return people.get(data[0]['id']).then(() => {
-                    return done('Did not throw!')
-                }).catch((e) => {
-                    if (e.name === 'NotFoundError') {
-                        return done();
-                    }
-                    return done(e);
-                });
-            }).catch(e => { console.log(util.inspect(e, true, Infinity)); return done(e); });
-        });
-
-        it('should delete the saved Record when only passing `id`', (done) => {
-            people.remove(data[1]['id']).then(() => {
-                return people.get(data[1]['id']).then(() => {
-                    return done('Did not throw!')
-                }).catch((e) => {
-                    if (e.name === 'NotFoundError') {
-                        return done();
-                    }
-                    return done(e);
-                });
-            }).catch(e => { console.log(util.inspect(e, true, Infinity)); return done(e); });
-        });
-
-        it('should throw when re-deleting saved Record', (done) => {
-            people.remove(data[0]['id']).then(() => {
-                return done('Did not throw!');
-            }).catch((e) => {
-                if (e.name === 'NotFoundError') {
-                    return done();
-                }
-                console.error(e);
                 return done(e);
             });
         });

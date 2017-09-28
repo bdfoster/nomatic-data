@@ -7,8 +7,7 @@ import AlreadyExistsError from './errors/AlreadyExistsError';
 import ValidationError from './errors/ValidationError';
 import Mapper, {MapperHookFunction, MapperOptions} from './Mapper';
 import Query from './Query';
-import {RecordData, RecordVirtualProperties} from './Record';
-import Record from './Record';
+import Record, {RecordData, RecordVirtualProperties} from './Record';
 
 export interface ContainerMapperOptions {
     properties?: object;
@@ -202,8 +201,8 @@ export class Container extends EventEmitter {
         return this.mappers[mapper].find();
     }
 
-    public findAll(mapper: string, query: Query): Promise<Record[]> {
-        return this.mappers[mapper].findAll(Query);
+    public findAll(mapper: string, query: Query | object): Promise<Record[]> {
+        return this.mappers[mapper].findAll(query);
     }
 
     public load() {
