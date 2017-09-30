@@ -87,7 +87,7 @@ export class Record extends EventEmitter {
     private _validate: RecordValidateFunction;
     private _virtuals: Map<string, RecordVirtualPropertyOptions>;
 
-    constructor (options: RecordOptions | Record, data?: RecordData) {
+    constructor(options: RecordOptions | Record = {}, data?: RecordData) {
         super(options.maxListeners || 0);
         this._changes = [];
         this._data = {};
@@ -95,7 +95,6 @@ export class Record extends EventEmitter {
         if (options instanceof Record) {
             this.init(options);
         } else {
-            options = options || {};
             this._save = options.save || null;
             this._validate = options.validate || null;
             this.init(data, options.virtuals);
@@ -272,7 +271,7 @@ export class Record extends EventEmitter {
      */
     public get(key: (string | number)[] | string): any {
         if (typeof key !== 'string') key = key.toString();
-        if (this._virtuals.has(key)) return this._virtuals.get(key).get.apply(this);
+        if (this._virtuals.has(key)) return this._virtuals.get(key).get.apply(this.proxy());
 
         return get(this._data, key);
     }
@@ -291,7 +290,7 @@ export class Record extends EventEmitter {
             const definition = this._virtuals.get(key);
             if (definition.hasOwnProperty('set')) {
                 if (!definition.save) {
-                    definition.set(value);
+                    definition.set.apply(this.proxy(), [value]);
                     return true;
                 }
                 isVirtual = true;
@@ -436,10 +435,12 @@ export class Record extends EventEmitter {
         const result = Object.assign({}, this._data);
 
         for (const entry of this._virtuals.entries()) {
-            const value = entry[1].get();
+            const value = entry[1].get.apply(this.proxy());
 
             if (entry[1][condition] === false || isNullOrUndefined(value)) {
                 unset(result, entry[0]);
+            } else {
+                set(result, entry[0], value);
             }
         }
 

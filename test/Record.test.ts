@@ -49,13 +49,20 @@ describe('Record', () => {
                     },
                     save: true,
                     serialize: false
+                },
+                name: {
+                    get() {
+                        return `${this.firstName} ${this.lastName}`;
+                    },
+                    serialize: true,
+                    save: false
                 }
             }
         }, {});
     });
 
     it('should not throw on instantiation with no parameters defined', () => {
-        expect(new Record({})).to.not.throw;
+        expect(new Record()).to.not.throw;
     });
 
     it('should throw when trying to delete a property defined in proto', () => {
@@ -77,6 +84,8 @@ describe('Record', () => {
             expect(instance['_data']).to.deep.equal(Object.assign({}, data, {
                 saved: 'no'
             }));
+
+            expect(instance.name).to.equal(`${instance.firstName} ${instance.lastName}`);
         });
 
         it('should clone if an existing Record instance is passed as `data`', () => {
@@ -252,6 +261,7 @@ describe('Record', () => {
             const result = instance.toJSON();
             console.log(result);
             expect(result.saved).to.not.exist;
+            expect(result.name).to.equal(`${instance.firstName} ${instance.lastName}`);
         });
     });
 
@@ -260,6 +270,7 @@ describe('Record', () => {
             const result = instance.serialize('save');
             console.log(result);
             expect(result.saved).to.exist;
+            expect(result.name).to.not.exist;
         });
     });
 });
