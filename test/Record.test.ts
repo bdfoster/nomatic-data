@@ -248,9 +248,18 @@ describe('Record', () => {
     });
 
     describe('#toJSON()', () => {
-        it('should only return virtual property values where `toJSON` is true in definition', () => {
+        it('should only return virtual property values where `serialize` is true in definition', () => {
             const result = instance.toJSON();
+            console.log(result);
             expect(result.saved).to.not.exist;
+        });
+    });
+
+    describe('#serialize()', () => {
+        it('should only return virtual property values matching `save` condition', () => {
+            const result = instance.serialize('save');
+            console.log(result);
+            expect(result.saved).to.exist;
         });
     });
 });

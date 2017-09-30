@@ -4,10 +4,6 @@ import {Container} from '../src';
 import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 import people from './fixtures/data/people';
 import accounts from './fixtures/data/accounts';
-import {RecordData} from '../src/Record';
-import Query from '../src/Query';
-import queries from './fixtures/queries';
-import {inspect} from 'util';
 
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
@@ -146,6 +142,4 @@ describe('Container', () => {
             });
         });
     });
-
-
 });

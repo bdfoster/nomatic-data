@@ -432,16 +432,13 @@ export class Record extends EventEmitter {
      * Serialize the Record instance as an object. Called by `#toJSON()`.
      * @returns {RecordData}
      */
-    public serialize(): RecordData {
+    public serialize(condition: 'save' | 'serialize' = 'serialize'): RecordData {
         const result = Object.assign({}, this._data);
 
         for (const entry of this._virtuals.entries()) {
             const value = entry[1].get();
-            if (entry[1].serialize && !entry[1].save && !isNullOrUndefined(value)) {
-                set(result, entry[0], entry[1].get());
-            }
 
-            if (!entry[1].serialize) {
+            if (entry[1][condition] === false || isNullOrUndefined(value)) {
                 unset(result, entry[0]);
             }
         }

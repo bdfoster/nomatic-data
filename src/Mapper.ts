@@ -4,6 +4,7 @@ import {EventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
 import Query from './Query';
 import {Record, RecordData, RecordOptions, RecordValidateFunction, RecordVirtualProperties} from './Record';
+
 export type MapperHookFunction = (record: Record) => void;
 
 export interface MapperOptions {
@@ -114,7 +115,7 @@ export class Mapper extends EventEmitter {
 
         this.emit('beforeUpdate', record);
 
-        const result = await this.adapter.update(this.collection, record.id, record.serialize());
+        const result = await this.adapter.update(this.collection, record.id, record.serialize('save'));
         record.commit(result);
         this.emit('afterUpdate', record);
         return record;
@@ -172,7 +173,7 @@ export class Mapper extends EventEmitter {
 
         this.emit('beforeUpdate', record);
 
-        return await this.adapter.replace(this.collection, id, record.serialize(), rev).then((data) => {
+        return await this.adapter.replace(this.collection, id, record.serialize('save'), rev).then((data) => {
             record.commit(data);
             this.emit('afterUpdate', record);
             return record;
@@ -198,7 +199,7 @@ export class Mapper extends EventEmitter {
 
         this.emit('beforeInsert', data);
 
-        return await this.adapter.insert(this.collection, record.serialize()).then((result) => {
+        return await this.adapter.insert(this.collection, record.serialize('save')).then((result) => {
             record.init(result);
             this.emit('afterInsert', record);
             return record;
