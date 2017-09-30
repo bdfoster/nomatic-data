@@ -4,9 +4,12 @@ import {Container} from '../src';
 import ArangoDBAdapter from 'nomatic-arangodb-adapter';
 import people from './fixtures/data/people';
 import accounts from './fixtures/data/accounts';
+import Query from '../src/Query';
+import {inspect} from 'util';
 
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
+    const mock = require('./fixtures/mock.json');
     let adapter;
     let instance;
 
@@ -71,7 +74,6 @@ describe('Container', () => {
             expect(instance.isLoading).to.equal(false);
 
             return instance.load().then(() => {
-
                 return done();
             });
         }).catch(done);
@@ -139,6 +141,132 @@ describe('Container', () => {
                 }
 
                 return done(error);
+            });
+        });
+    });
+
+    describe('#findAll', () => {
+        it('should return all results', (done) => {
+            instance.findAll('people', {}).then((results) => {
+                expect(results.length).to.equal(people.length);
+            }).then(done, done);
+        });
+
+        it('should find result where `firstName` is equal to ' + people[0].firstName, (done) => {
+            instance.findAll('people', new Query(null, {
+                $where: {
+                    firstName: {
+                        $eq: people[0].firstName
+                    }
+                }
+            })).then((results) => {
+                expect(results.length).to.equal(1);
+                expect(results[0].id).to.equal(people[0]['id']);
+            }).then(done, done);
+        });
+
+        it('should skip one person if `$skip` is 1', (done) => {
+            instance.findAll('people', {
+                $skip: 1
+            }).then((results) => {
+                expect(results.length).to.equal(1);
+                expect(results[0].id).to.equal(people[0]['id']);
+            }).then(done, done);
+        });
+
+        it('should return one record if `$skip` is 1 and `$limit` is also 1', (done) => {
+            instance.findAll('people', {
+                $skip: 1,
+                $limit: 1
+            }).then((results) => {
+                expect(results.length).to.equal(1);
+                expect(results[0].id).to.equal(people[0]['id']);
+            }).then(done, done);
+        });
+    });
+
+    describe('#insertAll()', () => {
+        it('should insert a bunch of records', (done) => {
+            instance.insertAll('people', [
+                {firstName: 'Jennifer', lastName: 'Doe'},
+                {firstName: 'Bob', lastName: 'Doe'}
+            ]).then((results) => {
+                expect(results.length).to.equal(2);
+            }).then(done, done);
+        });
+
+        it('should throw when record already exists', (done) => {
+            instance.insertAll('people', [
+                people[1]
+            ]).then(() => {
+                throw new Error('Did not throw!')
+            }).catch((e) => {
+                if (e.name !== 'AlreadyExistsError') {
+                    return done(e);
+                }
+
+                return done();
+            });
+        });
+    });
+
+    describe('#replace()', () => {
+        it('should replace a record', (done) => {
+            instance.replace('people', people[1]['id'], {
+                firstName: 'Rebecca',
+                lastName: 'Peterson'
+            }).then((result) => {
+                expect(result.id).to.equal(people[1]['id']);
+                expect(result.firstName).to.equal('Rebecca');
+                expect(result.lastName).to.equal('Peterson');
+                expect(result.rev).to.not.equal(people[1]['rev']);
+                people[1] = result;
+            }).then(done, done);
+        });
+    });
+
+    describe('#remove()', () => {
+        it('should delete the saved record', (done) => {
+            instance.remove('people', people[0]).then(() => {
+                return instance.get('people', people[0]['id']).then(() => {
+                    return done('Did not throw!')
+                }).catch((e) => {
+                    if (e.name === 'NotFoundError') {
+                        return done();
+                    }
+                    return done(e);
+                });
+            }).catch(e => {
+                console.log(inspect(e, true, Infinity));
+                return done(e);
+            });
+        });
+
+        it('should delete the saved Record when only passing `id`', (done) => {
+            instance.remove('people', people[1]['id']).then(() => {
+                return instance.get('people', people[1]['id']).then(() => {
+                    return done('Did not throw!')
+                }).catch((e) => {
+                    if (e.name === 'NotFoundError') {
+                        return done();
+                    }
+                    return done(e);
+                });
+            }).catch(e => {
+                console.log(inspect(e, true, Infinity));
+                return done(e);
+            });
+        });
+
+        it('should throw when re-deleting saved Record', (done) => {
+            instance.remove('people', people[0]['id']).then(() => {
+                return done('Did not throw!');
+            }).catch((e) => {
+                if (e.name === 'NotFoundError') {
+                    return done();
+                }
+                console.error(e);
+                return done(e);
             });
         });
     });

@@ -1,6 +1,7 @@
 {
   "name": "nomatic-data",
   "description": "Extensible Object-relational Mapper for Node.js",
+  "version": "0.0.0-dev",
   "main": "src/index.js",
   "typings": "src/index.d.ts",
   "scripts": {
@@ -36,22 +37,22 @@
   "devDependencies": {
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
-    "@types/node": "^8.0.28",
+    "@types/node": "^8.0.31",
     "chai": "^4.1.2",
-    "coveralls": "^2.13.1",
+    "coveralls": "^3.0.0",
     "cross-env": "^5.0.5",
     "mocha": "^3.5.3",
-    "nomatic-arangodb-adapter": "^1.0.1",
+    "nomatic-arangodb-adapter": "^1.0.7",
     "nyc": "^11.2.1",
-    "semantic-release": "^8.0.0",
+    "semantic-release": "^8.0.4",
     "source-map-support": "^0.4.18",
     "ts-node": "^3.3.0",
     "tslint": "^5.7.0",
     "typedoc": "^0.8.0",
-    "typescript": "^2.5.2"
+    "typescript": "^2.5.3"
   },
   "dependencies": {
-    "ajv": "^5.2.2",
+    "ajv": "^5.2.3",
     "ajv-async": "^0.1.0",
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.0",
