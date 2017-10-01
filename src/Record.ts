@@ -123,7 +123,7 @@ export class Record extends EventEmitter {
         const ignoredKeys = ['set', 'get', 'save', 'serialize'];
         this._virtuals = new Map();
 
-        function recurse(path) {
+        const recurse = (path) => {
             let target = get(value, path);
             if (target instanceof Function) {
                 target = {
@@ -133,20 +133,26 @@ export class Record extends EventEmitter {
 
             if (!target.hasOwnProperty('save')) target.save = false;
             if (!target.hasOwnProperty('serialize')) target.serialize = true;
+            if (!target.hasOwnProperty('set')) target.set = (v) => {
+                return v;
+            };
+            if (!target.hasOwnProperty('get')) target.get = () => {
+                return get(this._data, path);
+            };
 
             this._virtuals.set(path, pick(target, ignoredKeys));
 
             for (const key in target) {
                 if (target.hasOwnProperty(key)) {
                     if (ignoredKeys.indexOf(key) === -1) {
-                        recurse.apply(this, [path + '.' + key]);
+                        recurse.apply(path + '.' + key);
                     }
                 }
             }
-        }
+        };
 
         for (const key in value) {
-            recurse.apply(this, [key]);
+            recurse(key);
         }
     }
 
@@ -310,8 +316,14 @@ export class Record extends EventEmitter {
         let old = this.get(key);
 
         if (isVirtual) {
-            this._virtuals.get(key).set(value);
-            value = this._virtuals.get(key).get.apply(this);
+            const result = this._virtuals.get(key).set.apply(this.proxy(), [value]);
+
+            if (!isNullOrUndefined(result)) {
+                value = result;
+            } else {
+                value = this._virtuals.get(key).get.apply(this.proxy());
+            }
+
         }
 
         let newVal = value;

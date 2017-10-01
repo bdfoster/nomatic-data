@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": ["es2017"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "sourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -13,6 +16,6 @@
     "removeComments": true,
     "noLib": false,
     "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true,
+    "suppressImplicitAnyIndexErrors": true
   }
 }

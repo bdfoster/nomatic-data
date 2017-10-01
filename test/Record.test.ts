@@ -1,6 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import {Record, RecordData} from '../src';
+import * as bcrypt from 'bcrypt';
 
 describe('Record', () => {
     let number = 100;
@@ -56,6 +57,13 @@ describe('Record', () => {
                     },
                     serialize: true,
                     save: false
+                },
+                password: {
+                    set(password) {
+                        return bcrypt.hashSync(password, 10);
+                    },
+                    save: true,
+                    serialize: false
                 }
             }
         }, {});
@@ -76,13 +84,17 @@ describe('Record', () => {
     it('should retrieve value of virtual property', () => {
         expect(instance.hello).to.equal('world');
         expect(instance.number).to.equal(100);
+        instance.password = 's3cret';
+        expect(instance.password).to.not.equal('s3cret');
+        expect(bcrypt.compareSync('s3cret', instance.password)).to.equal(true);
     });
 
     describe('#init()', () => {
         it('should properly initialize the instance', () => {
             expect(instance.init(Object.assign({}, data))).to.not.throw;
             expect(instance['_data']).to.deep.equal(Object.assign({}, data, {
-                saved: 'no'
+                saved: 'no',
+                password: undefined
             }));
 
             expect(instance.name).to.equal(`${instance.firstName} ${instance.lastName}`);
@@ -195,7 +207,8 @@ describe('Record', () => {
 
             expect(instance.changes().length).to.equal(0);
             expect(instance['_data']).to.deep.equal(Object.assign({}, data, {
-                saved: 'no'
+                saved: 'no',
+                password: undefined
             }));
         });
 
@@ -222,7 +235,7 @@ describe('Record', () => {
         });
 
         it('should not commit changes if save handler is not defined', () => {
-            const i = new Record({});
+            const i = new Record();
             i.test = 1;
             expect(i.changes().length).to.equal(1);
             return i.save().then(() => {
@@ -259,7 +272,6 @@ describe('Record', () => {
     describe('#toJSON()', () => {
         it('should only return virtual property values where `serialize` is true in definition', () => {
             const result = instance.toJSON();
-            console.log(result);
             expect(result.saved).to.not.exist;
             expect(result.name).to.equal(`${instance.firstName} ${instance.lastName}`);
         });
@@ -268,7 +280,6 @@ describe('Record', () => {
     describe('#serialize()', () => {
         it('should only return virtual property values matching `save` condition', () => {
             const result = instance.serialize('save');
-            console.log(result);
             expect(result.saved).to.exist;
             expect(result.name).to.not.exist;
         });
