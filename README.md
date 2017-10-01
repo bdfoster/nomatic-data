@@ -1,7 +1,5 @@
 # nomatic-data
 
-[![Join the chat at https://gitter.im/nomatic-data/Lobby](https://badges.gitter.im/nomatic-data/Lobby.svg)](https://gitter.im/nomatic-data/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [![Greenkeeper badge](https://badges.greenkeeper.io/bdfoster/nomatic-data.svg)](https://greenkeeper.io/)
 [![Semantic Release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![GitHub release](https://img.shields.io/github/release/bdfoster/nomatic-data.svg)](https://github.com/bdfoster/nomatic-data/releases)
@@ -12,6 +10,7 @@
 [![dependencies Status](https://david-dm.org/bdfoster/nomatic-data/status.svg)](https://david-dm.org/bdfoster/nomatic-data)
 [![devDependencies Status](https://david-dm.org/bdfoster/nomatic-data/dev-status.svg)](https://david-dm.org/bdfoster/nomatic-data?type=dev)
 [![License](https://img.shields.io/github/license/bdfoster/nomatic-data.svg)](https://github.com/bdfoster/nomatic-data/blob/master/LICENSE)
+[![Join the chat at https://gitter.im/nomatic-data/Lobby](https://badges.gitter.im/nomatic-data/Lobby.svg)](https://gitter.im/nomatic-data/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Extensible Object-relational Mapping Framework for Node.js
 
