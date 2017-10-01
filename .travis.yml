@@ -11,6 +11,7 @@ before_script:
   - npm link
   - npm link nomatic-data
 script:
+  - npm run lint
   - npm run test:ci
 after_success:
   - npm unlink
