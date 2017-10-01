@@ -49,3 +49,4 @@ fabric.properties
 /dist/
 /test/fixtures/config/development.json
 /package-lock.json
+/docs

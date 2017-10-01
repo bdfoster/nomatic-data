@@ -19,3 +19,12 @@ after_success:
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+before_deploy:
+  - npm run docs
+deploy:
+  provider: pages
+  local_dir: docs
+  skip_cleanup: true
+  github_token: $GH_TOKEN
+  on:
+    branch: master
