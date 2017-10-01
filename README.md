@@ -6,6 +6,7 @@
 [![npm](https://img.shields.io/npm/v/nomatic-data.svg)](https://www.npmjs.com/package/nomatic-data)
 [![Build Status](https://travis-ci.org/bdfoster/nomatic-data.svg?branch=greenkeeper%2Finitial)](https://travis-ci.org/bdfoster/nomatic-data)
 [![Coverage Status](https://coveralls.io/repos/github/bdfoster/nomatic-data/badge.svg)](https://coveralls.io/github/bdfoster/nomatic-data)
+[![Known Vulnerabilities](https://snyk.io/test/github/bdfoster/nomatic-data/badge.svg)](https://snyk.io/test/github/bdfoster/nomatic-data)
 [![dependencies Status](https://david-dm.org/bdfoster/nomatic-data/status.svg)](https://david-dm.org/bdfoster/nomatic-data)
 [![devDependencies Status](https://david-dm.org/bdfoster/nomatic-data/dev-status.svg)](https://david-dm.org/bdfoster/nomatic-data?type=dev)
 [![License](https://img.shields.io/github/license/bdfoster/nomatic-data.svg)](https://github.com/bdfoster/nomatic-data/blob/master/LICENSE)
