@@ -10,6 +10,7 @@
 [![dependencies Status](https://david-dm.org/bdfoster/nomatic-data/status.svg)](https://david-dm.org/bdfoster/nomatic-data)
 [![devDependencies Status](https://david-dm.org/bdfoster/nomatic-data/dev-status.svg)](https://david-dm.org/bdfoster/nomatic-data?type=dev)
 [![License](https://img.shields.io/github/license/bdfoster/nomatic-data.svg)](https://github.com/bdfoster/nomatic-data/blob/master/LICENSE)
+[![Join the chat at https://gitter.im/nomatic-data/Lobby](https://badges.gitter.im/nomatic-data/Lobby.svg)](https://gitter.im/nomatic-data/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Extensible Object-relational Mapping Framework for Node.js
 
