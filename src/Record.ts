@@ -296,7 +296,11 @@ export class Record extends EventEmitter {
             const definition = this._virtuals.get(key);
             if (definition.hasOwnProperty('set')) {
                 if (!definition.save) {
-                    definition.set.apply(this.proxy(), [value]);
+                    const result = definition.set.apply(this.proxy(), [value]);
+
+                    if (!isNullOrUndefined(result)) {
+                        set(this._data, key, result);
+                    }
                     return true;
                 }
                 isVirtual = true;
