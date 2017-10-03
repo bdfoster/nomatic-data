@@ -120,8 +120,7 @@ describe('Mapper', () => {
                 }
             }).then(results => {
                 expect(results[0].serialize()).to.deep.equal(records[0].serialize());
-                return done();
-            }).catch(done);
+            }).then(done, done);
         });
     });
 
@@ -145,6 +144,17 @@ describe('Mapper', () => {
 
                 return done(e);
             });
+        });
+    });
+
+    describe('#getAll()', () => {
+        it('should get an array with one saved Record instance', (done) => {
+            people.getAll([data[0]['id']]).then((results) => {
+                expect(results).to.exist;
+                expect(results.length).to.equal(1);
+                expect(results[0].id).to.equal(records[0].id);
+                expect(results[0].rev).to.equal(records[0].rev);
+            }).then(done, done);
         });
     });
 

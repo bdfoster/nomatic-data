@@ -69,6 +69,16 @@ export class Mapper extends EventEmitter {
         return this.createRecord(response);
     }
 
+    public async getAll(ids: string[]) {
+        const promises = [];
+
+        for (const i in ids) {
+            promises.push(this.get(ids[i]));
+        }
+
+        return Promise.all(promises);
+    }
+
     public find(): Query {
         return new Query((query) => {
            return this.findAll(query);
