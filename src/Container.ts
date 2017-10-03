@@ -140,8 +140,13 @@ export class Container extends EventEmitter {
 
         const mapperOptions: MapperOptions = {
             adapter: this.adapter,
+            afterInsert: options.afterInsert,
+            afterUpdate: options.afterUpdate,
+            beforeInsert: options.beforeInsert,
+            beforeUpdate: options.beforeUpdate,
             name: name,
-            validate: validate
+            validate: validate,
+            virtuals: options.virtuals
         };
 
         for (const name of Mapper.hooksList) {

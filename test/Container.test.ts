@@ -45,6 +45,15 @@ describe('Container', () => {
                         }
                     },
                     people: {
+                        virtuals: {
+                            name: {
+                                get() {
+                                    return `${this.firstName} ${this.lastName}`;
+                                },
+                                save: false,
+                                serialize: false
+                            }
+                        },
                         properties: {
                             firstName: {
                                 type: 'string',
@@ -88,6 +97,24 @@ describe('Container', () => {
     describe('#isLoading', () => {
         it('should return false when instance is loaded', () => {
             expect(instance.isLoading).to.equal(false);
+        });
+    });
+
+    describe('#defineMapper()', () => {
+        it('should correctly define a Mapper instance', () => {
+            expect(instance.mappers['people']).to.have.keys([
+                '_maxListeners',
+                '_validate',
+                '_virtuals',
+                'adapter',
+                'collection',
+                'listeners',
+                'name'
+            ]);
+
+            expect(instance.mappers['people']._virtuals.name.get.toString().split(' ').join(''))
+                .to.equal('get(){\nreturn`${this.firstName}${this.lastName}`;\n}');
+
         });
     });
 
@@ -189,6 +216,7 @@ describe('Container', () => {
         it('should return a saved Record instance', (done) => {
             instance.get('people', people[0]['id']).then((result) => {
                 expect(result.id).to.equal(people[0]['id']);
+                expect(result.name).to.equal(`${people[0].firstName} ${people[0].lastName}`);
             }).then(done, done);
         });
     });
@@ -196,7 +224,6 @@ describe('Container', () => {
     describe('#getAll()', () => {
         it('should return an array of saved Record instances', (done) => {
             instance.getAll('people', [people[0]['id'], people[1]['id']]).then((results) => {
-
                 expect(results.length).to.equal(2);
                 expect(results[0].id).to.equal(people[0]['id']);
                 expect(results[1].id).to.equal(people[1]['id']);
