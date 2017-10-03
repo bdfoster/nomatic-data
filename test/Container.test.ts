@@ -185,6 +185,25 @@ describe('Container', () => {
         });
     });
 
+    describe('#get()', () => {
+        it('should return a saved Record instance', (done) => {
+            instance.get('people', people[0]['id']).then((result) => {
+                expect(result.id).to.equal(people[0]['id']);
+            }).then(done, done);
+        });
+    });
+
+    describe('#getAll()', () => {
+        it('should return an array of saved Record instances', (done) => {
+            instance.getAll('people', [people[0]['id'], people[1]['id']]).then((results) => {
+
+                expect(results.length).to.equal(2);
+                expect(results[0].id).to.equal(people[0]['id']);
+                expect(results[1].id).to.equal(people[1]['id']);
+            }).then(done, done);
+        });
+    });
+
     describe('#insertAll()', () => {
         it('should insert a bunch of records', (done) => {
             instance.insertAll('people', [

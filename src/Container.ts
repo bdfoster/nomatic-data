@@ -193,8 +193,12 @@ export class Container extends EventEmitter {
         return this.mappers[mapper].insertAll(data);
     }
 
-    public get(mapper: string, ids: string[]): Promise<Record> {
-        return this.mappers[mapper].get(ids[0]);
+    public get(mapper: string, id: string): Promise<Record> {
+        return this.mappers[mapper].get(id);
+    }
+
+    public getAll(mapper: string, ids: string[]): Promise<Record[]> {
+        return this.mappers[mapper].getAll(ids);
     }
 
     public find(mapper: string): Query {
