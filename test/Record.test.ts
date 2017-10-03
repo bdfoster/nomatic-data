@@ -230,8 +230,8 @@ describe('Record', () => {
             }).then(done, done);
 
             setTimeout(() => {
-                return done('Did not emit!');
-            }, 200);
+                if (!emitted) return done('Did not emit!');
+            }, 20);
         });
 
         it('should not commit changes if save handler is not defined', () => {
@@ -259,8 +259,8 @@ describe('Record', () => {
             });
 
             setTimeout(() => {
-                return done('Did not emit!');
-            }, 200);
+                if (!emitted) return done('Did not emit!');
+            }, 20);
         });
 
         it('should not throw if validate handler is not defined', () => {

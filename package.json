@@ -44,7 +44,7 @@
     "cross-env": "^5.0.5",
     "mocha": "^4.0.0",
     "node-gyp": "^3.6.2",
-    "nomatic-arangodb-adapter": "^1.0.7",
+    "nomatic-arangodb-adapter": "^1.0.10",
     "nyc": "^11.2.1",
     "semantic-release": "^8.0.4",
     "source-map-support": "^0.4.18",
