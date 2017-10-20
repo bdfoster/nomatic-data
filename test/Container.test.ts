@@ -163,11 +163,22 @@ describe('Container', () => {
             }).then(() => {
                 throw new Error('Did not throw!');
             }).catch((error) => {
-                if (error.message.startsWith('should be an existing')) {
+                if (error.message.startsWith('should reference an existing record in')) {
                     return done();
                 }
 
                 return done(error);
+            });
+        });
+
+        it('should throw when inserting a new record that fails validation', (done) => {
+            instance.insert('people', {
+                'firstName': 'Brian'
+            }).then(() => {
+                return done(new Error('Did not throw!'));
+            }).catch((error) => {
+                console.error(inspect(error, null, Infinity));
+                return done();
             });
         });
     });

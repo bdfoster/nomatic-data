@@ -1,6 +1,5 @@
 import * as Ajv from 'ajv';
 import * as ajvAsync from 'ajv-async';
-import {Database} from 'arangojs';
 import {EventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
 import AlreadyExistsError from './errors/AlreadyExistsError';
@@ -79,7 +78,7 @@ export class Container extends EventEmitter {
                     if (error.name === 'NotFoundError') {
                         throw new ValidationError({
                             keyword: 'mapper',
-                            message: 'should be an existing ' + mapper,
+                            message: 'should reference an existing record in "' + mapper + '" collection',
                             path: path
                         });
                     }
@@ -111,32 +110,23 @@ export class Container extends EventEmitter {
             properties: options.properties || {},
             required: options.required || [],
             additionalProperties: options.additionalProperties || true,
-
         });
 
-        let validate;
+        const validate = this.validator.compile(schema);
 
-        if (this.mappers.hasOwnProperty(name)) {
-            throw new AlreadyExistsError();
-        }
-
-        this.validator.addSchema(schema, name);
-
-        validate = async (data) => {
-            const isValid = await this.validator.validate(name, data);
-
-            if (!isValid) {
-                const error = this.validator.errors[0];
-
+        const validateRunner = (data) => {
+            return validate(data).then((data) => {
+                return data;
+            }).catch((error) => {
                 if (error.ajv) {
-                    throw new ValidationError(error);
+                    throw new ValidationError(error.errors[0]);
                 }
 
                 throw error;
-            }
-
-            return data;
+            })
         };
+
+
 
         const mapperOptions: MapperOptions = {
             adapter: this.adapter,
@@ -145,7 +135,7 @@ export class Container extends EventEmitter {
             beforeInsert: options.beforeInsert,
             beforeUpdate: options.beforeUpdate,
             name: name,
-            validate: validate,
+            validate: validateRunner,
             virtuals: options.virtuals
         };
 
