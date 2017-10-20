@@ -177,8 +177,8 @@ describe('Container', () => {
             }).then(() => {
                 return done(new Error('Did not throw!'));
             }).catch((error) => {
-                console.error(inspect(error, null, Infinity));
-                return done();
+                if (error.name === 'ValidationError' && error.message.startsWith('should have required property')) return done();
+                throw error;
             });
         });
     });
