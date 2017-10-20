@@ -123,7 +123,7 @@ export class Container extends EventEmitter {
                 }
 
                 throw error;
-            })
+            });
         };
 
 
