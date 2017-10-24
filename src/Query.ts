@@ -124,6 +124,30 @@ export class Query {
         }
     }
 
+    public add(key: string, operator?: string, value?: any, logicalOperator?: string) {
+        if (Query.COMPARISON_OPERATORS.indexOf(operator) === -1 && Query.ELEMENT_OPERATORS.indexOf(operator) === -1) {
+            throw new Error('Invalid operator: ' + operator);
+        }
+
+        if (!logicalOperator) {
+            logicalOperator = '$and';
+        } else if (Query.LOGIC_OPERATORS.indexOf(logicalOperator) === -1) {
+            throw new Error('Invalid logical operator: ' + logicalOperator);
+        }
+
+        if (!this.data.$where[logicalOperator]) {
+            this.data.$where[logicalOperator] = [];
+        }
+
+        this.data.$where[logicalOperator].push({
+            [key]: {
+                [operator]: value
+            }
+        });
+
+        return this;
+    }
+
     public and(key: string) {
         return this.where(key);
     }
@@ -190,31 +214,7 @@ export class Query {
     }
 
     public where(key: string, operator?: string, value?: any, logicalOperator?: string) {
-        if (key && !operator) {
-            return new WhereQuery(this, key, null);
-        }
-
-        if (Query.COMPARISON_OPERATORS.indexOf(operator) === -1 && Query.ELEMENT_OPERATORS.indexOf(operator) === -1) {
-            throw new Error('Invalid operator: ' + operator);
-        }
-
-        if (!logicalOperator) {
-            logicalOperator = '$and';
-        } else if (Query.LOGIC_OPERATORS.indexOf(logicalOperator) === -1) {
-            throw new Error('Invalid logical operator: ' + logicalOperator);
-        }
-
-        if (!this.data.$where[logicalOperator]) {
-            this.data.$where[logicalOperator] = [];
-        }
-
-        this.data.$where[logicalOperator].push({
-            [key]: {
-                [operator]: value
-            }
-        });
-
-        return this;
+        return new WhereQuery(this, key, null);
     }
 }
 

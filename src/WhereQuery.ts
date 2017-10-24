@@ -11,7 +11,7 @@ export class WhereQuery {
     }
 
     private set(operator: string, value: any) {
-        return this.parent.where(this.key, operator, value, this.logicalOperator);
+        return this.parent.add(this.key, operator, value, this.logicalOperator);
     }
 
     public get is() {
@@ -34,7 +34,11 @@ export class WhereQuery {
         return this.set('$gte', value);
     }
 
-    public in(value: (boolean | string | number)[]) {
+    public in(value: (boolean | string | number)[] | boolean | string | number) {
+        if (value instanceof String || !(value instanceof Array)) {
+            return this.set('$in', [value]);
+        }
+
         return this.set('$in', value);
     }
 

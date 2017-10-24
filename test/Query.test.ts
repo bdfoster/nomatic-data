@@ -72,7 +72,7 @@ describe('Query', () => {
         });
 
         it('should add last data added to $or operator and return WhereQuery instance', () => {
-            instance.where('test1', '$eq', true);
+            instance.add('test1', '$eq', true);
             const where = instance.or('test1');
             expect(where).to.be.instanceOf(WhereQuery);
             const inst = where.eq(true);
@@ -84,9 +84,11 @@ describe('Query', () => {
         it('should return a WhereQuery instance when only `key` is specified', () => {
             expect(instance.where('test0')).to.be.an.instanceOf(WhereQuery);
         });
+    });
 
+    describe('#add()', () => {
         it('should use $and modifier by default', () => {
-            instance.where('test1', '$eq', true);
+            instance.add('test1', '$eq', true);
 
             expect(instance.data.$where.$and).to.exist;
             expect(instance.data.$where.$and.length).to.equal(1);
@@ -99,7 +101,7 @@ describe('Query', () => {
 
         it('should throw when an invalid logical operator is specified', () => {
             try {
-                instance.where('test1', '$gte', 1, '$invalid');
+                instance.add('test1', '$gte', 1, '$invalid');
             } catch (error) {
                 if (error.message === 'Invalid logical operator: $invalid') {
                     return;
@@ -113,7 +115,7 @@ describe('Query', () => {
 
         it('should throw when an invalid operator is specified', () => {
             try {
-                instance.where('test1', '$invalid', 1);
+                instance.add('test1', '$invalid', 1);
             } catch (error) {
                 if (error.message === 'Invalid operator: $invalid') {
                     return;
