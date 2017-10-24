@@ -47,6 +47,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 /dist/
-/test/fixtures/config/development.json
 /package-lock.json
 /docs
+/test/fixtures/config/development.json
+/test/fixtures/config/test.json
