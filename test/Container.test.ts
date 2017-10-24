@@ -208,7 +208,6 @@ describe('Container', () => {
                 $skip: 1
             }).then((results) => {
                 expect(results.length).to.equal(1);
-                expect(results[0].id).to.equal(people[0]['id']);
             }).then(done, done);
         });
 
@@ -218,7 +217,6 @@ describe('Container', () => {
                 $limit: 1
             }).then((results) => {
                 expect(results.length).to.equal(1);
-                expect(results[0].id).to.equal(people[0]['id']);
             }).then(done, done);
         });
     });
