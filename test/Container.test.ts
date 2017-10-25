@@ -131,7 +131,7 @@ describe('Container', () => {
                     'rev',
                     'createdAt'
                 ]);
-                people[0] = record;
+                people[0] = record.serialize();
             }).then(done, done);
         });
 
@@ -147,13 +147,14 @@ describe('Container', () => {
                     'rev',
                     'createdAt'
                 ]);
-                people[1] = record;
+                people[1] = record.serialize();
             }).then(done, done);
         });
 
         it('should insert a new record that relates to a record in a different collection', (done) => {
             instance.insert('accounts', accounts[0]).then((record) => {
                 expect(record.people).to.deep.equal(accounts[0].people);
+                accounts[0] = record.serialize();
             }).then(done, done);
         });
 
@@ -180,6 +181,16 @@ describe('Container', () => {
                 if (error.name === 'ValidationError' && error.message.startsWith('should have required property')) return done();
                 throw error;
             });
+        });
+    });
+
+    describe('#update()', () => {
+        it('should update a record', (done) => {
+            instance.update('accounts', accounts[0]['id'], {
+                people: [people[0]['id']]
+            }).then((record) => {
+                return done();
+            }).catch(done);
         });
     });
 

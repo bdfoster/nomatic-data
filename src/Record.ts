@@ -167,13 +167,27 @@ export class Record extends EventEmitter {
 
         const traps = {
             get(target, key) {
-                if (path) key = path + '[' + key.toString() + ']';
-                if (get(self, key)) {
-                    return get(self, key);
-                } else if (typeof self.get(key) === 'object' && self.get(key) !== null) {
-                    return self.proxy(key);
+                if (key in target) {
+                    return target[key];
+                } else if (target !== self) {
+                    return;
                 }
-                return self.get(key);
+
+                if (path) {
+                    if (typeof key !== 'symbol' && !isNaN(key)) {
+                        key = path + '[' + key.toString() + ']';
+                    } else {
+                        key = path + '.' + key.toString();
+                    }
+                }
+
+                const value = self.get(key);
+
+                if (typeof value === 'object' && value !== null) {
+                    return self.proxy(key);
+                } else {
+                    return value;
+                }
             },
             set(target, key, value) {
                 if (path) {
@@ -278,6 +292,8 @@ export class Record extends EventEmitter {
     public get(key: (string | number)[] | string): any {
         if (typeof key !== 'string') key = key.toString();
         if (this._virtuals.has(<string>key)) return this._virtuals.get(<string>key).get.apply(this.proxy());
+
+
 
         return get(this._data, key);
     }
