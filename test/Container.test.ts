@@ -9,9 +9,9 @@ import {inspect} from 'util';
 
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
-    const mock = require('./fixtures/mock.json');
     let adapter;
     let instance;
+    let gets = 0;
 
     before((done) => {
         adapter = new ArangoDBAdapter(config);
@@ -26,6 +26,9 @@ describe('Container', () => {
 
             instance = new Container({
                 adapter: adapter,
+                afterGet(record) {
+                    gets++;
+                },
                 beforeInsert(record) {
                     record.createdAt = new Date();
                 },
@@ -196,8 +199,10 @@ describe('Container', () => {
 
     describe('#findAll', () => {
         it('should return all results', (done) => {
+            const startGets = gets;
             instance.findAll('people', {}).then((results) => {
                 expect(results.length).to.equal(people.length);
+                expect(gets).to.equal(startGets + results.length);
             }).then(done, done);
         });
 
@@ -234,19 +239,23 @@ describe('Container', () => {
 
     describe('#get()', () => {
         it('should return a saved Record instance', (done) => {
+            const startGets = gets;
             instance.get('people', people[0]['id']).then((result) => {
                 expect(result.id).to.equal(people[0]['id']);
                 expect(result.name).to.equal(`${people[0].firstName} ${people[0].lastName}`);
+                expect(gets).to.equal(startGets + 1);
             }).then(done, done);
         });
     });
 
     describe('#getAll()', () => {
         it('should return an array of saved Record instances', (done) => {
+            const startGets = gets;
             instance.getAll('people', [people[0]['id'], people[1]['id']]).then((results) => {
                 expect(results.length).to.equal(2);
                 expect(results[0].id).to.equal(people[0]['id']);
                 expect(results[1].id).to.equal(people[1]['id']);
+                expect(gets).to.equal(startGets + 2);
             }).then(done, done);
         });
     });

@@ -293,8 +293,6 @@ export class Record extends EventEmitter {
         if (typeof key !== 'string') key = key.toString();
         if (this._virtuals.has(<string>key)) return this._virtuals.get(<string>key).get.apply(this.proxy());
 
-
-
         return get(this._data, key);
     }
 
@@ -303,8 +301,9 @@ export class Record extends EventEmitter {
      *
      * @param key
      * @param value
+     * @param silent
      */
-    public set(key, value) {
+    public set(key, value, silent: boolean = false) {
         if (typeof key !== 'string') key = key.toString();
         let isVirtual = false;
 
@@ -373,7 +372,9 @@ export class Record extends EventEmitter {
 
         set(this._data, key, value);
 
-        this._changes.push(change);
+        if (!silent) {
+            this._changes.push(change);
+        }
     }
 
     /**
@@ -381,10 +382,11 @@ export class Record extends EventEmitter {
      * `_changes` so long as a value exists. Virtual properties cannot be unset.
      *
      * @param key
+     * @param silent
      * @returns {boolean} If true, unset was successful. If false, there's nothing set at `key` under `_data` or it is
      * a virtual property.
      */
-    public unset(key) {
+    public unset(key, silent: boolean = false) {
         if (!isNullOrUndefined(get(this._virtuals, key))) return false;
         const operation: RecordOperation = 'remove';
         let old = this.get(key);
@@ -403,7 +405,10 @@ export class Record extends EventEmitter {
         };
 
         if (unset(this._data, key)) {
-            this._changes.push(change);
+            if (!silent) {
+                this._changes.push(change);
+            }
+
             return true;
         }
 

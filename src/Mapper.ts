@@ -6,13 +6,19 @@ import Query from './Query';
 import {Record, RecordData, RecordOptions, RecordValidateFunction, RecordVirtualProperties} from './Record';
 
 export type MapperHookFunction = (record: Record) => void;
+export type MapperBeforeGetHookFunction = (id: string) => void;
+export type MapperValidateHookFunction = (record: Record, operation: 'insert' | 'replace' | 'update') => void;
 
 export interface MapperOptions {
     adapter: Adapter;
+    afterGet?: MapperHookFunction | MapperHookFunction[];
     afterInsert?: MapperHookFunction | MapperHookFunction[];
     afterUpdate?: MapperHookFunction | MapperHookFunction[];
+    afterValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
+    beforeGet?: MapperBeforeGetHookFunction | MapperBeforeGetHookFunction[];
     beforeInsert?: MapperHookFunction | MapperHookFunction[];
     beforeUpdate?: MapperHookFunction | MapperHookFunction[];
+    beforeValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
     name: string;
     validate?: RecordValidateFunction;
     virtuals?: RecordVirtualProperties;
@@ -20,10 +26,14 @@ export interface MapperOptions {
 
 export class Mapper extends EventEmitter {
     static hooksList: string[] = [
+        'afterGet',
         'afterInsert',
         'afterUpdate',
+        'afterValidate',
+        'beforeGet',
         'beforeInsert',
-        'beforeUpdate'
+        'beforeUpdate',
+        'beforeValidate'
     ];
 
     private _validate: RecordValidateFunction;
@@ -33,6 +43,21 @@ export class Mapper extends EventEmitter {
     public name: string;
     public readonly collection: string;
 
+    /**
+     * Hooks ordering:
+     *  Operation(s)                    Order
+     *  --------------------------------------------------------------------------------------------------
+     *  find, findAll                   afterGet
+     *  get, getAll                     beforeGet, afterGet
+     *  insert,insertAll                beforeValidate, afterValidate, beforeInsert, afterInsert, afterGet
+     *  replace, update                 beforeValidate, afterValidate, beforeUpdate, afterUpdate, afterGet
+     *  --------------------------------------------------------------------------------------------------
+     *
+     * Hooks are called on each record, so getAll, findAll, and insertAll operations will call each hook for each
+     * record.
+     *
+     * @param {MapperOptions} options
+     */
     constructor(options: MapperOptions) {
         super();
         this.adapter = options.adapter;
@@ -54,6 +79,14 @@ export class Mapper extends EventEmitter {
         }
     }
 
+    private validate(record: Record, operation: string) {
+        this.emit('beforeValidate', record, operation);
+        return record.validate().then(() => {
+            this.emit('afterValidate', record, operation);
+            return;
+        });
+    }
+
     public createRecord(data: RecordData = {}): Record {
         const options: RecordOptions = {
             validate: this._validate,
@@ -65,8 +98,11 @@ export class Mapper extends EventEmitter {
     }
 
     public async get(id: string): Promise<Record> {
+        this.emit('beforeGet', id);
         const response = await this.adapter.get(this.collection, id);
-        return this.createRecord(response);
+        const record = this.createRecord(response);
+        this.emit('afterGet', record);
+        return record;
     }
 
     public async getAll(ids: string[]) {
@@ -98,7 +134,9 @@ export class Mapper extends EventEmitter {
         const response = await this.adapter.findAll(this.collection, q);
 
         for (const i in response) {
-            results.push(this.createRecord(response[i]));
+            const record = this.createRecord(response[i]);
+            this.emit('afterGet', record);
+            results.push(record);
         }
 
         return results;
@@ -117,7 +155,7 @@ export class Mapper extends EventEmitter {
 
         if (validate) {
             try {
-                await record.validate();
+                await this.validate(record, 'update');
             } catch (error) {
                 throw error;
             }
@@ -128,12 +166,13 @@ export class Mapper extends EventEmitter {
         const result = await this.adapter.update(this.collection, record.id, record.serialize('save'));
         record.commit(result);
         this.emit('afterUpdate', record);
+        this.emit('afterGet', record);
         return record;
     }
 
-    public async save(record: Record, validate: boolean = true): Promise<Record> {
+    public async save(record: Record, validate: boolean = true, force: boolean = false): Promise<Record> {
         if (record.id && record.rev) {
-            if (record.changes().length === 0) {
+            if (record.changes().length === 0 && !force) {
                 return this.get(record.id).then((response) => {
                     if (response.rev === record.rev) {
                         return record;
@@ -175,7 +214,7 @@ export class Mapper extends EventEmitter {
 
         if (validate) {
             try {
-                await record.validate();
+                await this.validate(record, 'replace');
             } catch (error) {
                 throw error;
             }
@@ -186,6 +225,7 @@ export class Mapper extends EventEmitter {
         return await this.adapter.replace(this.collection, id, record.serialize('save'), rev).then((data) => {
             record.commit(data);
             this.emit('afterUpdate', record);
+            this.emit('afterGet', record);
             return record;
         });
     }
@@ -201,7 +241,7 @@ export class Mapper extends EventEmitter {
 
         if (validate) {
             try {
-                await record.validate();
+                await this.validate(record, 'insert');
             } catch (error) {
                 throw error;
             }
@@ -212,6 +252,7 @@ export class Mapper extends EventEmitter {
         return await this.adapter.insert(this.collection, record.serialize('save')).then((result) => {
             record.init(result);
             this.emit('afterInsert', record);
+            this.emit('afterGet', record);
             return record;
         });
     }

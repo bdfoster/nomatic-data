@@ -4,7 +4,7 @@ import {EventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
 import AlreadyExistsError from './errors/AlreadyExistsError';
 import ValidationError from './errors/ValidationError';
-import Mapper, {MapperHookFunction, MapperOptions} from './Mapper';
+import Mapper, {MapperHookFunction, MapperOptions, MapperValidateHookFunction} from './Mapper';
 import Query from './Query';
 import Record, {RecordData, RecordVirtualProperties} from './Record';
 
@@ -13,10 +13,13 @@ export interface ContainerMapperOptions {
     required?: string[];
     additionalProperties?: boolean | object;
     virtuals?: RecordVirtualProperties;
+    afterGet?: MapperHookFunction | MapperHookFunction[];
     afterInsert?: MapperHookFunction | MapperHookFunction[];
     afterUpdate?: MapperHookFunction | MapperHookFunction[];
+    afterValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
     beforeInsert?: MapperHookFunction | MapperHookFunction[];
     beforeUpdate?: MapperHookFunction | MapperHookFunction[];
+    beforeValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
 }
 
 export interface ContainerMappers {
@@ -26,10 +29,14 @@ export interface ContainerMappers {
 
 export interface ContainerOptions {
     adapter: Adapter;
+    afterGet?: MapperHookFunction | MapperHookFunction[];
     afterInsert?: MapperHookFunction | MapperHookFunction[];
     afterUpdate?: MapperHookFunction | MapperHookFunction[];
+    afterValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
     beforeInsert?: MapperHookFunction | MapperHookFunction[];
     beforeUpdate?: MapperHookFunction | MapperHookFunction[];
+    beforeValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
+
     mappers: {
         [key: string]: ContainerMapperOptions;
     };
@@ -130,10 +137,6 @@ export class Container extends EventEmitter {
 
         const mapperOptions: MapperOptions = {
             adapter: this.adapter,
-            afterInsert: options.afterInsert,
-            afterUpdate: options.afterUpdate,
-            beforeInsert: options.beforeInsert,
-            beforeUpdate: options.beforeUpdate,
             name: name,
             validate: validateRunner,
             virtuals: options.virtuals

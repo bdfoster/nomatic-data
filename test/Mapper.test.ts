@@ -10,6 +10,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 describe('Mapper', () => {
+    let hooksFired = [];
     const records = [];
     const data = [
         {
@@ -34,6 +35,38 @@ describe('Mapper', () => {
         people = new Mapper({
             adapter: new ArangoDBAdapter(config),
             name: 'person',
+            afterGet: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('afterGet');
+            },
+            afterInsert: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('afterInsert');
+            },
+            afterUpdate: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('afterUpdate');
+            },
+            afterValidate: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('afterValidate');
+            },
+            beforeGet: (id) => {
+                expect(id).to.be.a('string');
+                hooksFired.push('beforeGet');
+            },
+            beforeInsert: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('beforeInsert');
+            },
+            beforeUpdate: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('beforeUpdate');
+            },
+            beforeValidate: (record) => {
+                expect(record).to.be.an.instanceOf(Record);
+                hooksFired.push('beforeValidate');
+            }
         });
         people.load().then(() => {
             return people.truncate().then(() => {
@@ -59,10 +92,18 @@ describe('Mapper', () => {
 
     describe('#save()', () => {
         it('should save the record to the database collection when `id` is not specified', (done) => {
+            hooksFired = [];
             records[0].save().then(() => {
                 expect(records[0].id).to.exist;
                 expect(records[0].rev).to.exist;
                 data[0] = records[0].toJSON();
+                expect(hooksFired).to.deep.equal([
+                    'beforeValidate',
+                    'afterValidate',
+                    'beforeInsert',
+                    'afterInsert',
+                    'afterGet'
+                ]);
             }).then(done, done);
         });
 
@@ -75,18 +116,45 @@ describe('Mapper', () => {
         });
 
         it('should update the record to the database collection', (done) => {
+            hooksFired = [];
             records[0].birthDate = '2000-12-31';
             records[0].save().then(() => {
                 expect(data[0]['rev']).to.not.equal(records[0].rev);
                 expect(records[0].birthDate).to.equal('2000-12-31');
                 data[0] = records[0].toJSON();
+                expect(hooksFired).to.deep.equal([
+                    'beforeValidate',
+                    'afterValidate',
+                    'beforeUpdate',
+                    'afterUpdate',
+                    'afterGet'
+                ]);
             }).then(done, done);
         });
 
         it('should bypass database operations when no changes are made', (done) => {
+            hooksFired = [];
             expect(records[0].changes().length).to.equal(0);
             records[0].save().then(() => {
                 expect(data[0]['rev']).to.equal(records[0].rev);
+                expect(hooksFired).to.deep.equal([
+                    'beforeGet',
+                    'afterGet'
+                ]);
+            }).then(done, done);
+        });
+
+        it('should force database operations when no changes are made and `force` is true', (done) => {
+            hooksFired = [];
+            expect(records[0].changes().length).to.equal(0);
+            people.save(records[0], false, true).then(() => {
+                expect(data[0]['rev']).to.not.equal(records[0].rev);
+                data[0] = records[0].toJSON();
+                expect(hooksFired).to.deep.equal([
+                    'beforeUpdate',
+                    'afterUpdate',
+                    'afterGet'
+                ]);
             }).then(done, done);
         });
 
@@ -114,31 +182,44 @@ describe('Mapper', () => {
 
     describe('#findAll', () => {
         it('should find the saved Record', (done) => {
+            hooksFired = [];
             people.findAll({
                 $where: {
                     id: records[0].id
                 }
             }).then(results => {
                 expect(results[0].serialize()).to.deep.equal(records[0].serialize());
+                expect(hooksFired).to.deep.equal([
+                    'afterGet'
+                ]);
             }).then(done, done);
         });
     });
 
     describe('#get()', () => {
         it('should get the saved Record', (done) => {
+            hooksFired = [];
             people.get(data[0]['id']).then((record) => {
                 expect(record).to.exist;
                 expect(record).to.be.instanceOf(Record);
                 expect(record.id).to.equal(records[0].id);
+                expect(hooksFired).to.deep.equal([
+                    'beforeGet',
+                    'afterGet'
+                ]);
                 return done();
             }).catch(done);
         });
 
         it('should throw when specifying a non-existent Record', (done) => {
+            hooksFired = [];
             people.get('000000').then(() => {
                 return done('Did not throw!');
             }).catch((e) => {
                 if (e.name === 'NotFoundError') {
+                    expect(hooksFired).to.deep.equal([
+                        'beforeGet'
+                    ]);
                     return done();
                 }
 
@@ -161,13 +242,22 @@ describe('Mapper', () => {
     describe('#update()', () => {
         it('should update record given `data` is not a Record instance', (done) => {
             const data = records[0].serialize();
-
+            hooksFired = [];
             data.middleName = 'David';
             people.update(data).then((result) => {
                 expect(result.middleName).to.equal(data.middleName);
                 expect(result.rev).to.not.equal(data.rev);
                 expect(result).to.be.an.instanceOf(Record);
                 records[0] = result;
+                expect(hooksFired).to.deep.equal([
+                    'beforeGet',
+                    'afterGet',
+                    'beforeValidate',
+                    'afterValidate',
+                    'beforeUpdate',
+                    'afterUpdate',
+                    'afterGet'
+                ]);
             }).then(done, done);
         });
 

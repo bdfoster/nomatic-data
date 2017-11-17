@@ -140,6 +140,13 @@ describe('Record', () => {
                 new: 'yes'
             });
         });
+
+        it('should not list changes with `silent` set to true on #set() or #unset()', () => {
+            const start = instance.changes().length;
+            instance.set('testSilent', false, true);
+            expect(instance.changes().length).to.equal(start);
+            instance.unset('testSilent', true);
+        });
     });
 
     describe('#revert()', () => {
