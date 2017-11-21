@@ -1,13 +1,12 @@
-import {Database, DocumentCollection, Graph} from 'arangojs';
 import * as merge from 'lodash.merge';
-import {EventEmitter} from 'nomatic-events';
+import {AsyncEventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
 import Query from './Query';
 import {Record, RecordData, RecordOptions, RecordValidateFunction, RecordVirtualProperties} from './Record';
 
-export type MapperHookFunction = (record: Record) => void;
-export type MapperBeforeGetHookFunction = (id: string) => void;
-export type MapperValidateHookFunction = (record: Record, operation: 'insert' | 'replace' | 'update') => void;
+export type MapperHookFunction = (record: Record) => void | Promise<void>;
+export type MapperBeforeGetHookFunction = (id: string) => void | Promise<void>;
+export type MapperValidateHookFunction = (record: Record, operation: 'insert' | 'replace' | 'update') => void | Promise<void>;
 
 export interface MapperOptions {
     adapter: Adapter;
@@ -24,7 +23,7 @@ export interface MapperOptions {
     virtuals?: RecordVirtualProperties;
 }
 
-export class Mapper extends EventEmitter {
+export class Mapper extends AsyncEventEmitter {
     static hooksList: string[] = [
         'afterGet',
         'afterInsert',
@@ -79,11 +78,10 @@ export class Mapper extends EventEmitter {
         }
     }
 
-    private validate(record: Record, operation: string) {
-        this.emit('beforeValidate', record, operation);
-        return record.validate().then(() => {
-            this.emit('afterValidate', record, operation);
-            return;
+    private async validate(record: Record, operation: string) {
+        await this.emit('beforeValidate', record, operation);
+        return record.validate().then( () => {
+            return this.emit('afterValidate', record, operation);
         });
     }
 
@@ -98,10 +96,10 @@ export class Mapper extends EventEmitter {
     }
 
     public async get(id: string): Promise<Record> {
-        this.emit('beforeGet', id);
+        await this.emit('beforeGet', id);
         const response = await this.adapter.get(this.collection, id);
         const record = this.createRecord(response);
-        this.emit('afterGet', record);
+        await this.emit('afterGet', record);
         return record;
     }
 
@@ -135,7 +133,7 @@ export class Mapper extends EventEmitter {
 
         for (const i in response) {
             const record = this.createRecord(response[i]);
-            this.emit('afterGet', record);
+            await this.emit('afterGet', record);
             results.push(record);
         }
 
@@ -161,12 +159,12 @@ export class Mapper extends EventEmitter {
             }
         }
 
-        this.emit('beforeUpdate', record);
+        await this.emit('beforeUpdate', record);
 
         const result = await this.adapter.update(this.collection, record.id, record.serialize('save'));
         record.commit(result);
-        this.emit('afterUpdate', record);
-        this.emit('afterGet', record);
+        await this.emit('afterUpdate', record);
+        await this.emit('afterGet', record);
         return record;
     }
 
@@ -220,12 +218,12 @@ export class Mapper extends EventEmitter {
             }
         }
 
-        this.emit('beforeUpdate', record);
+        await this.emit('beforeUpdate', record);
 
-        return await this.adapter.replace(this.collection, id, record.serialize('save'), rev).then((data) => {
+        return await this.adapter.replace(this.collection, id, record.serialize('save'), rev).then(async (data) => {
             record.commit(data);
-            this.emit('afterUpdate', record);
-            this.emit('afterGet', record);
+            await this.emit('afterUpdate', record);
+            await this.emit('afterGet', record);
             return record;
         });
     }
@@ -247,12 +245,12 @@ export class Mapper extends EventEmitter {
             }
         }
 
-        this.emit('beforeInsert', data);
+        await this.emit('beforeInsert', data);
 
-        return await this.adapter.insert(this.collection, record.serialize('save')).then((result) => {
+        return await this.adapter.insert(this.collection, record.serialize('save')).then(async (result) => {
             record.init(result);
-            this.emit('afterInsert', record);
-            this.emit('afterGet', record);
+            await this.emit('afterInsert', record);
+            await this.emit('afterGet', record);
             return record;
         });
     }

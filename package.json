@@ -54,13 +54,13 @@
     "typescript": "^2.5.3"
   },
   "dependencies": {
-    "ajv": "^5.2.3",
-    "ajv-async": "^0.1.0",
+    "ajv": "^5.4.0",
+    "ajv-async": "^0.1.1",
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.0",
     "lodash.pick": "^4.4.0",
     "lodash.set": "^4.3.2",
     "lodash.unset": "^4.5.2",
-    "nomatic-events": "^2.1.1"
+    "nomatic-events": "^2.2.1"
   }
 }

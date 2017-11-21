@@ -26,7 +26,7 @@ describe('Container', () => {
 
             instance = new Container({
                 adapter: adapter,
-                afterGet(record) {
+                afterGet() {
                     gets++;
                 },
                 beforeInsert(record) {

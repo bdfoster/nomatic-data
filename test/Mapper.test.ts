@@ -37,7 +37,12 @@ describe('Mapper', () => {
             name: 'person',
             afterGet: (record) => {
                 expect(record).to.be.an.instanceOf(Record);
-                hooksFired.push('afterGet');
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        hooksFired.push('afterGet');
+                        resolve();
+                    }, 20);
+                })
             },
             afterInsert: (record) => {
                 expect(record).to.be.an.instanceOf(Record);
