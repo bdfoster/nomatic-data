@@ -55,15 +55,19 @@ const store = new Container({
     
     /**
      * A few hooks are provided for your convenience, including:
+     * - beforeGet
+     * - afterGet
      * - beforeInsert
      * - afterInsert
      * - beforeUpdate
      * - afterUpdate
+     * - beforeValidate
+     * - afterValidate
      */ 
-    beforeInsert(record) {
+    beforeInsert(mapper, record) {
         record.createdAt = new Date();
     },
-    beforeUpdate(record) {
+    beforeUpdate(mapper, record) {
         record.updatedAt = new Date();
     },
     
