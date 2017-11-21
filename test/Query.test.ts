@@ -20,6 +20,27 @@ describe('Query', () => {
                 'rev'
             ]);
         });
+
+        it('should set `data.$fields` when given arrays of strings and return the instance', () => {
+            expect(instance.fields([
+                'id',
+                'rev',
+                'createdAt',
+                'updatedAt'
+            ], [
+                'firstName',
+                'lastName'
+            ])).to.equal(instance);
+
+            expect(instance.data.$fields).to.deep.equal([
+                'id',
+                'rev',
+                'createdAt',
+                'updatedAt',
+                'firstName',
+                'lastName'
+            ]);
+        })
     });
 
     describe('#limit()', () => {

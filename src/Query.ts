@@ -152,12 +152,21 @@ export class Query {
         return this.where(key);
     }
 
-    public fields(...fields) {
+    public fields(...fields: Array<string | Array<string>>) {
         if (!this.data.$fields) {
             this.data.$fields = [];
         }
 
-        this.data.$fields.push(...fields);
+        for (const i in fields) {
+            if (fields[i] instanceof Array) {
+                this.fields(...fields[i]);
+            } else {
+                if (this.data.$fields.indexOf(fields[i]) === -1) {
+                    this.data.$fields.push(fields[i]);
+                }
+            }
+        }
+
         return this;
     }
 
