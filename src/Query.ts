@@ -152,7 +152,7 @@ export class Query {
         return this.where(key);
     }
 
-    public fields(...fields: Array<string | Array<string>>) {
+    public fields(...fields: (string | string[])[]) {
         if (!this.data.$fields) {
             this.data.$fields = [];
         }
