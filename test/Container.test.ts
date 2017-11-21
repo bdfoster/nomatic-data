@@ -6,6 +6,7 @@ import people from './fixtures/data/people';
 import accounts from './fixtures/data/accounts';
 import Query from '../src/Query';
 import {inspect} from 'util';
+import {Record} from '../src/Record';
 
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
@@ -26,14 +27,47 @@ describe('Container', () => {
 
             instance = new Container({
                 adapter: adapter,
-                afterGet() {
-                    gets++;
+                afterGet(mapper, record) {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            expect(mapper).to.be.a('string');
+                            expect(record).to.be.an.instanceOf(Record);
+                            gets++;
+                            resolve();
+                        }, 20);
+                    });
                 },
-                beforeInsert(record) {
+                afterInsert(mapper, record) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
+                },
+                afterUpdate(mapper, record) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
+                },
+                afterValidate(mapper, record, operation) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
+                    expect(operation).to.be.a('string');
+                },
+                beforeGet(mapper, id) {
+                    expect(mapper).to.be.a('string');
+                    expect(id).to.be.a('string');
+                },
+                beforeInsert(mapper, record) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
                     record.createdAt = new Date();
                 },
-                beforeUpdate(record) {
+                beforeUpdate(mapper, record) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
                     record.updatedAt = new Date();
+                },
+                beforeValidate(mapper, record, operation) {
+                    expect(mapper).to.be.a('string');
+                    expect(record).to.be.an.instanceOf(Record);
+                    expect(operation).to.be.a('string');
                 },
                 mappers: {
                     accounts: {

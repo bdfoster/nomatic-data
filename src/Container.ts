@@ -1,12 +1,19 @@
 import * as Ajv from 'ajv';
 import * as ajvAsync from 'ajv-async';
-import {EventEmitter} from 'nomatic-events';
+import {AsyncEventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
-import AlreadyExistsError from './errors/AlreadyExistsError';
 import ValidationError from './errors/ValidationError';
-import Mapper, {MapperHookFunction, MapperOptions, MapperValidateHookFunction} from './Mapper';
+import Mapper, {
+    MapperBeforeGetHookFunction,
+    MapperHookFunction, MapperOptions, MapperValidateHookFunction,
+    MapperValidateHookOperation
+} from './Mapper';
 import Query from './Query';
 import Record, {RecordData, RecordVirtualProperties} from './Record';
+
+export type ContainerBeforeGetHookFunction = (mapper: string, id: string) => void | Promise<void>;
+export type ContainerHookFunction = (mapper: string, record: Record) => void | Promise<void>;
+export type ContainerValidateHookFunction = (mapper: string, record: Record, operation: MapperValidateHookOperation) => void | Promise<void>;
 
 export interface ContainerMapperOptions {
     properties?: object;
@@ -17,6 +24,7 @@ export interface ContainerMapperOptions {
     afterInsert?: MapperHookFunction | MapperHookFunction[];
     afterUpdate?: MapperHookFunction | MapperHookFunction[];
     afterValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
+    beforeGet?: MapperBeforeGetHookFunction | MapperBeforeGetHookFunction[];
     beforeInsert?: MapperHookFunction | MapperHookFunction[];
     beforeUpdate?: MapperHookFunction | MapperHookFunction[];
     beforeValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
@@ -29,20 +37,21 @@ export interface ContainerMappers {
 
 export interface ContainerOptions {
     adapter: Adapter;
-    afterGet?: MapperHookFunction | MapperHookFunction[];
-    afterInsert?: MapperHookFunction | MapperHookFunction[];
-    afterUpdate?: MapperHookFunction | MapperHookFunction[];
-    afterValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
-    beforeInsert?: MapperHookFunction | MapperHookFunction[];
-    beforeUpdate?: MapperHookFunction | MapperHookFunction[];
-    beforeValidate?: MapperValidateHookFunction | MapperValidateHookFunction[];
+    afterGet?: ContainerHookFunction | ContainerHookFunction[];
+    afterInsert?: ContainerHookFunction | ContainerHookFunction[];
+    afterUpdate?: ContainerHookFunction | ContainerHookFunction[];
+    afterValidate?: ContainerValidateHookFunction | ContainerValidateHookFunction[];
+    beforeGet?: ContainerBeforeGetHookFunction | ContainerBeforeGetHookFunction[];
+    beforeInsert?: ContainerHookFunction | ContainerHookFunction[];
+    beforeUpdate?: ContainerHookFunction | ContainerHookFunction[];
+    beforeValidate?: ContainerValidateHookFunction | ContainerValidateHookFunction[];
 
     mappers: {
         [key: string]: ContainerMapperOptions;
     };
 }
 
-export class Container extends EventEmitter {
+export class Container extends AsyncEventEmitter {
     private _isLoaded: boolean;
     private _isLoading: boolean;
     public readonly mappers: ContainerMappers;
@@ -142,9 +151,9 @@ export class Container extends EventEmitter {
             virtuals: options.virtuals
         };
 
-        for (const name of Mapper.hooksList) {
-            if (options[name]) {
-                mapperOptions[name] = options[name];
+        for (const hookName of Mapper.hooksList) {
+            if (options[hookName]) {
+                mapperOptions[hookName] = options[name];
             }
         }
 
@@ -152,7 +161,7 @@ export class Container extends EventEmitter {
 
         for (const namespace of Mapper.hooksList) {
             this.mappers[name].on(namespace, (...data) => {
-                this.emit(namespace, ...data, name);
+                return this.emit(namespace, name, ...data);
             });
         }
 

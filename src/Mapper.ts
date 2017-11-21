@@ -6,7 +6,8 @@ import {Record, RecordData, RecordOptions, RecordValidateFunction, RecordVirtual
 
 export type MapperHookFunction = (record: Record) => void | Promise<void>;
 export type MapperBeforeGetHookFunction = (id: string) => void | Promise<void>;
-export type MapperValidateHookFunction = (record: Record, operation: 'insert' | 'replace' | 'update') => void | Promise<void>;
+export type MapperValidateHookFunction = (record: Record, operation: MapperValidateHookOperation) => void | Promise<void>;
+export type MapperValidateHookOperation = 'insert' | 'replace' | 'update';
 
 export interface MapperOptions {
     adapter: Adapter;
@@ -229,7 +230,7 @@ export class Mapper extends AsyncEventEmitter {
     }
 
     public async insert(data: Record | RecordData, validate: boolean = true): Promise<Record> {
-        let record;
+        let record: Record;
 
         if (!(data instanceof Record)) {
             record = this.createRecord(data);
@@ -245,7 +246,7 @@ export class Mapper extends AsyncEventEmitter {
             }
         }
 
-        await this.emit('beforeInsert', data);
+        await this.emit('beforeInsert', record);
 
         return await this.adapter.insert(this.collection, record.serialize('save')).then(async (result) => {
             record.init(result);
