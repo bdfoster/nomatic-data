@@ -54,7 +54,7 @@ export interface ContainerOptions {
 
 export interface ContainerValidatorOptions extends ajv.Options {
     keywords?: {
-        [key: string]: ajv.KeywordDefinition;
+        [key: string]: any;
     };
 }
 
@@ -123,9 +123,38 @@ export class Container extends AsyncEventEmitter {
             };
         }
 
+        if (!validatorKeywords.validate) {
+            validatorKeywords['validate'] = {
+                validate: (...args) => {
+                    return args[0].apply(this, [args.slice(1, args.length)]);
+                }
+            };
+        }
+
         for (const i in validatorKeywords) {
             this.validator.addKeyword(i, validatorKeywords[i]);
         }
+
+        // this.validator.addKeyword('mapper', {
+        //     async: true,
+        //     type: 'string',
+        //     errors: true,
+        //     validate: async (mapper, id, schema, path) => {
+        //         return this.mappers[mapper].get(id).then((record) => {
+        //             return (record.id === id);
+        //         }).catch((error) => {
+        //             if (error.name === 'NotFoundError') {
+        //                 throw new ValidationError({
+        //                     keyword: 'mapper',
+        //                     message: 'should reference an existing record in "' + mapper + '" collection',
+        //                     path: path
+        //                 });
+        //             }
+        //
+        //             throw error;
+        //         });
+        //     }
+        // });
 
         if (options.mappers) {
             for (const mapper in options.mappers) {
