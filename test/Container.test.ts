@@ -7,6 +7,7 @@ import accounts from './fixtures/data/accounts';
 import Query from '../src/Query';
 import {inspect} from 'util';
 import {Record} from '../src/Record';
+import Mapper from '../src/Mapper';
 
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
@@ -38,33 +39,40 @@ describe('Container', () => {
                     });
                 },
                 afterInsert(mapper, record) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                 },
                 afterUpdate(mapper, record) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                 },
                 afterValidate(mapper, record, operation) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                     expect(operation).to.be.a('string');
                 },
                 beforeGet(mapper, id) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(id).to.be.a('string');
                 },
                 beforeInsert(mapper, record) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                     record.createdAt = new Date();
                 },
                 beforeUpdate(mapper, record) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                     record.updatedAt = new Date();
                 },
                 beforeValidate(mapper, record, operation) {
+                    expect(this).to.equal(instance);
                     expect(mapper).to.be.a('string');
                     expect(record).to.be.an.instanceOf(Record);
                     expect(operation).to.be.a('string');
@@ -79,7 +87,41 @@ describe('Container', () => {
                                     mapper: 'people'
                                 }
                             }
-                        }
+                        },
+                        afterGet(record) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                        },
+                        afterInsert(record) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                        },
+                        afterUpdate(record) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                        },
+                        afterValidate(record, operation) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                            expect(operation).to.be.a('string');
+                        },
+                        beforeGet(id) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(id).to.be.a('string');
+                        },
+                        beforeInsert(record) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                        },
+                        beforeUpdate(record) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                        },
+                        beforeValidate(record, operation) {
+                            expect(this).to.be.an.instanceOf(Mapper);
+                            expect(record).to.be.an.instanceOf(Record);
+                            expect(operation).to.be.a('string');
+                        },
                     },
                     people: {
                         virtuals: {
