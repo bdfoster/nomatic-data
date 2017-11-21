@@ -1,4 +1,4 @@
-import * as Ajv from 'ajv';
+import * as ajv from 'ajv';
 import * as ajvAsync from 'ajv-async';
 import {AsyncEventEmitter} from 'nomatic-events';
 import {Adapter} from './adapters/index';
@@ -45,9 +45,16 @@ export interface ContainerOptions {
     beforeInsert?: ContainerHookFunction | ContainerHookFunction[];
     beforeUpdate?: ContainerHookFunction | ContainerHookFunction[];
     beforeValidate?: ContainerValidateHookFunction | ContainerValidateHookFunction[];
+    validator?: ContainerValidatorOptions;
 
     mappers: {
         [key: string]: ContainerMapperOptions;
+    };
+}
+
+export interface ContainerValidatorOptions extends ajv.Options {
+    keywords?: {
+        [key: string]: ajv.KeywordDefinition;
     };
 }
 
@@ -77,32 +84,77 @@ export class Container extends AsyncEventEmitter {
             }
         }
 
-        this.validator = ajvAsync(Ajv({
-            coerceTypes: false,
-            allErrors: false,
-            useDefaults: true
-        }));
+        if (!options.validator) {
+            options.validator = {};
+        }
 
-        this.validator.addKeyword('mapper', {
-            async: true,
-            type: 'string',
-            errors: true,
-            validate: async (mapper, id, schema, path) => {
-                return this.mappers[mapper].get(id).then((record) => {
-                    return (record.id === id);
-                }).catch((error) => {
-                    if (error.name === 'NotFoundError') {
-                        throw new ValidationError({
-                            keyword: 'mapper',
-                            message: 'should reference an existing record in "' + mapper + '" collection',
-                            path: path
-                        });
-                    }
+        options.validator.coerceTypes = options.validator.coerceTypes || false;
+        options.validator.allErrors = options.validator.allErrors || false;
+        options.validator.useDefaults = options.validator.useDefaults || true;
 
-                    throw error;
-                });
-            }
-        });
+        const validatorKeywords = options.validator.keywords || {};
+
+        if (options.validator.keywords) {
+            delete options.validator.keywords;
+        }
+
+        this.validator = ajvAsync(ajv(options.validator));
+
+        if (!validatorKeywords['mapper']) {
+            validatorKeywords['mapper'] = {
+                async: true,
+                type: 'string',
+                errors: true,
+                validate: async (mapper, id, schema, path) => {
+                    return this.get(mapper, id).then((record) => {
+                        return (record.id === id);
+                    }).catch((error) => {
+                        if (error.name === 'NotFoundError') {
+                            throw new ValidationError({
+                                keyword: 'mapper',
+                                message: 'should reference an existing record in "' + mapper + '" collection',
+                                path: path
+                            });
+                        }
+
+                        throw error;
+                    });
+                }
+            };
+        }
+
+        // if (!validatorKeywords.validate) {
+        //     validatorKeywords['validate'] = {
+        //         validate: (...args) => {
+        //             return args[0].apply(this, [args.slice(1, args.length)]);
+        //         }
+        //     };
+        // }
+
+        for (const i in validatorKeywords) {
+            this.validator.addKeyword(i, validatorKeywords[i]);
+        }
+
+        // this.validator.addKeyword('mapper', {
+        //     async: true,
+        //     type: 'string',
+        //     errors: true,
+        //     validate: async (mapper, id, schema, path) => {
+        //         return this.mappers[mapper].get(id).then((record) => {
+        //             return (record.id === id);
+        //         }).catch((error) => {
+        //             if (error.name === 'NotFoundError') {
+        //                 throw new ValidationError({
+        //                     keyword: 'mapper',
+        //                     message: 'should reference an existing record in "' + mapper + '" collection',
+        //                     path: path
+        //                 });
+        //             }
+        //
+        //             throw error;
+        //         });
+        //     }
+        // });
 
         if (options.mappers) {
             for (const mapper in options.mappers) {
