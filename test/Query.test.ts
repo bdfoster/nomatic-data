@@ -12,14 +12,24 @@ describe('Query', () => {
         });
     });
 
-    describe('#$limit()', () => {
+    describe('#fields', () => {
+        it('should set `data.$fields when given strings and return the instance', () => {
+            expect(instance.fields('id', 'rev')).to.equal(instance);
+            expect(instance.data.$fields).to.deep.equal([
+                'id',
+                'rev'
+            ]);
+        });
+    });
+
+    describe('#limit()', () => {
         it('should set `data.$limit` and return the instance', () => {
             expect(instance.limit(10)).to.equal(instance);
             expect(instance.data.$limit).to.equal(10);
         });
     });
 
-    describe('#$skip()', () => {
+    describe('#skip()', () => {
         it('should set `data.$skip` and return the instance', () => {
             expect(instance.skip(1)).to.equal(instance);
             expect(instance.data.$skip).to.equal(1);

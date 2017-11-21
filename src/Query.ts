@@ -158,6 +158,7 @@ export class Query {
         }
 
         this.data.$fields.push(...fields);
+        return this;
     }
 
     public limit(value: number) {
