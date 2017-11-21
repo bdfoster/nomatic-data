@@ -223,7 +223,7 @@ export class Container extends AsyncEventEmitter {
 
         if (this._isLoading) {
             return new Promise((resolve) => {
-                this.on('open', (self) => {
+                this.on('load', (self) => {
                     resolve(self);
                 });
             });
@@ -239,10 +239,11 @@ export class Container extends AsyncEventEmitter {
             }
 
             return Promise.all(results).then(() => {
-                this.emit('open', this);
                 this._isLoaded = true;
                 this._isLoading = false;
-                return this;
+                return this.emit('load', this).then(() => {
+                    return this;
+                });
             });
         });
     }
