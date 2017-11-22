@@ -49,14 +49,12 @@ export interface RecordVirtualProperties {
 export interface RecordVirtualPropertyOptions {
     /**
      * Function which returns the value of the virtual property.
-     * @returns {any}
      */
     get?: RecordVirtualPropertyFunction;
 
     /**
      * Function which sets the value of the virtual property. Can be used to set
      * other properties within the Record instance.
-     * @param value
      */
     set?: (value: any) => void;
 
@@ -71,12 +69,9 @@ export interface RecordVirtualPropertyOptions {
     serialize?: boolean;
 }
 
-
 /**
  * A trackable object with configurable `save` handler. Changes to the object can be reverted incrementally
  * in the reverse order the changes were made.
- * @class Record
- * @extends EventEmitter
  */
 export class Record extends EventEmitter {
     [key: string]: any;
@@ -105,8 +100,7 @@ export class Record extends EventEmitter {
 
     /**
      * Return the changes since last `save()` or `init()`. By default, it returns all changes.
-     * @param {number} count Number of changes to return (in reverse chronological order).
-     * @returns {RecordChange[]}
+     * @param count Number of changes to return (in reverse chronological order).
      */
     public changes(count: number = null) {
         if (count === null) count = this._changes.length;
@@ -117,7 +111,6 @@ export class Record extends EventEmitter {
 
     /**
      * Set virtual property definitions.
-     * @param {RecordVirtualProperties} value
      */
     public set virtuals(value: RecordVirtualProperties) {
         const ignoredKeys = ['set', 'get', 'save', 'serialize'];
@@ -145,7 +138,7 @@ export class Record extends EventEmitter {
             for (const key in target) {
                 if (target.hasOwnProperty(key)) {
                     if (ignoredKeys.indexOf(key) === -1) {
-                        recurse.apply(path + '.' + key);
+                        recurse.apply(`${path}.${key}`);
                     }
                 }
             }
@@ -158,9 +151,6 @@ export class Record extends EventEmitter {
 
     /**
      * Recursive/nested proxy. This is normally returned from `constructor()` method.
-     *
-     * @param {any} path
-     * @returns {any}
      */
     private proxy(path = null) {
         const self = this;
@@ -175,9 +165,9 @@ export class Record extends EventEmitter {
 
                 if (path) {
                     if (typeof key !== 'symbol' && !isNaN(key)) {
-                        key = path + '[' + key.toString() + ']';
+                        key = `${path}[${key.toString()}]`;
                     } else {
-                        key = path + '.' + key.toString();
+                        key = `${path}.${key.toString()}`;
                     }
                 }
 
@@ -191,10 +181,10 @@ export class Record extends EventEmitter {
             },
             set(target, key, value) {
                 if (path) {
-                    if (!isNaN(key) ) {
-                        key = path + '[' + key.toString() + ']';
+                    if (!isNaN(key)) {
+                        key = `${path}[${key.toString()}]`;
                     } else {
-                        key = path + '.' + key;
+                        key = `${path}.${key.toString()}`;
                     }
                 }
                 if (get(self, key)) {
@@ -209,7 +199,13 @@ export class Record extends EventEmitter {
                 return true;
             },
             deleteProperty(target, key) {
-                if (path) key = path + '[' + key + ']';
+                if (path) {
+                    if (!isNaN(key)) {
+                        key = `${path}[${key.toString()}]`;
+                    } else {
+                        key = `${path}.${key.toString()}`;
+                    }
+                }
 
                 if (get(self, key)) {
                     return false;
@@ -228,9 +224,6 @@ export class Record extends EventEmitter {
     /**
      * Initialize the instance. Data passed here is assumed to be the ground truth with respect to changes. All previous
      * changes are cleared on each call.
-     *
-     * @param {RecordData} data
-     * @param {RecordVirtualProperties} virtuals
      */
 
     public init(data: Record | RecordData, virtuals: RecordVirtualProperties = null) {
@@ -261,7 +254,6 @@ export class Record extends EventEmitter {
                 this._data = data;
             }
 
-
         } else {
             if (data !== true) {
                 this.rev = data;
@@ -291,17 +283,13 @@ export class Record extends EventEmitter {
      */
     public get(key: (string | number)[] | string): any {
         if (typeof key !== 'string') key = key.toString();
-        if (this._virtuals.has(<string>key)) return this._virtuals.get(<string>key).get.apply(this.proxy());
+        if (this._virtuals.has(<string> key)) return this._virtuals.get(<string> key).get.apply(this.proxy());
 
         return get(this._data, key);
     }
 
     /**
      * Set a value at `key` in `_data`. Anything set using this method will have a corresponding entry in `_changes`.
-     *
-     * @param key
-     * @param value
-     * @param silent
      */
     public set(key, value, silent: boolean = false) {
         if (typeof key !== 'string') key = key.toString();
@@ -381,9 +369,7 @@ export class Record extends EventEmitter {
      * Essentially deletes a property at `key` under `_data`. Uses of this method will have a corresponding entry in
      * `_changes` so long as a value exists. Virtual properties cannot be unset.
      *
-     * @param key
-     * @param silent
-     * @returns {boolean} If true, unset was successful. If false, there's nothing set at `key` under `_data` or it is
+     * @returns If true, unset was successful. If false, there's nothing set at `key` under `_data` or it is
      * a virtual property.
      */
     public unset(key, silent: boolean = false) {
@@ -418,8 +404,6 @@ export class Record extends EventEmitter {
     /**
      * Calls `_save()` (if it exists). All changes are considered committed if `_save` exists
      * and returns successfully.
-     *
-     * @returns {Promise<void>}
      */
     public async save() {
         if (this._save) {
@@ -436,7 +420,7 @@ export class Record extends EventEmitter {
         if (this._validate) {
             try {
                 await this._validate(this);
-            } catch(e) {
+            } catch (e) {
                 throw e;
             }
         }
@@ -445,14 +429,14 @@ export class Record extends EventEmitter {
     /**
      * Reverts changes to `_data` made by `set()` and `unset()` methods.
      *
-     * @param {number} count The number of changes to revert (in reverse chronological order). By default, all changes
+     * @param count The number of changes to revert (in reverse chronological order). By default, all changes
      * are reverted.
      */
     public revert(count: number = this._changes.length) {
         for (let i = 0; i < count; i++) {
             const change = this._changes.pop();
 
-            switch(change.operation) {
+            switch (change.operation) {
                 case 'remove':
                 case 'replace':
                     set(this._data, change.key, change.old);
@@ -466,7 +450,6 @@ export class Record extends EventEmitter {
 
     /**
      * Serialize the Record instance as an object. Called by `#toJSON()`.
-     * @returns {RecordData}
      */
     public serialize(condition: 'save' | 'serialize' = 'serialize'): RecordData {
         const result = Object.assign({}, this._data);

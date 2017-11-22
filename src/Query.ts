@@ -4,7 +4,7 @@ import Record, {RecordData} from './Record';
 import WhereQuery from './WhereQuery';
 
 export class Query {
-    static COMPARISON_OPERATORS = [
+    public static COMPARISON_OPERATORS = [
         '$eq',
         '$gt',
         '$gte',
@@ -15,15 +15,14 @@ export class Query {
         '$nin'
     ];
 
-    static ELEMENT_OPERATORS = [
+    public static ELEMENT_OPERATORS = [
         '$exists'
     ];
 
-    static LOGIC_OPERATORS = [
+    public static LOGIC_OPERATORS = [
         '$and',
         '$or'
     ];
-
 
     public data;
     public runHandler: (query: object) => Promise<RecordData[]>;
@@ -120,7 +119,7 @@ export class Query {
                 }
             }
         } else {
-            throw new Error('Cannot parse ' + value + ' in ' + path);
+            throw new Error(`Cannot parse ${value} in ${path}`);
         }
     }
 

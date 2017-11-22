@@ -34,7 +34,6 @@ export interface ContainerMappers {
     [key: string]: Mapper;
 }
 
-
 export interface ContainerOptions {
     adapter: Adapter;
     afterGet?: ContainerHookFunction | ContainerHookFunction[];
@@ -112,7 +111,7 @@ export class Container extends AsyncEventEmitter {
                         if (error.name === 'NotFoundError') {
                             throw new ValidationError({
                                 keyword: 'mapper',
-                                message: 'should reference an existing record in "' + mapper + '" collection',
+                                message: `should reference an existing record in "${mapper}" collection`,
                                 path: path
                             });
                         }
@@ -134,27 +133,6 @@ export class Container extends AsyncEventEmitter {
         for (const i in validatorKeywords) {
             this.validator.addKeyword(i, validatorKeywords[i]);
         }
-
-        // this.validator.addKeyword('mapper', {
-        //     async: true,
-        //     type: 'string',
-        //     errors: true,
-        //     validate: async (mapper, id, schema, path) => {
-        //         return this.mappers[mapper].get(id).then((record) => {
-        //             return (record.id === id);
-        //         }).catch((error) => {
-        //             if (error.name === 'NotFoundError') {
-        //                 throw new ValidationError({
-        //                     keyword: 'mapper',
-        //                     message: 'should reference an existing record in "' + mapper + '" collection',
-        //                     path: path
-        //                 });
-        //             }
-        //
-        //             throw error;
-        //         });
-        //     }
-        // });
 
         if (options.mappers) {
             for (const mapper in options.mappers) {
@@ -193,8 +171,6 @@ export class Container extends AsyncEventEmitter {
                 throw error;
             });
         };
-
-
 
         const mapperOptions: MapperOptions = {
             adapter: this.adapter,

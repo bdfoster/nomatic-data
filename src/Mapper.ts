@@ -25,7 +25,7 @@ export interface MapperOptions {
 }
 
 export class Mapper extends AsyncEventEmitter {
-    static hooksList: string[] = [
+    public static hooksList: string[] = [
         'afterGet',
         'afterInsert',
         'afterUpdate',
@@ -55,8 +55,6 @@ export class Mapper extends AsyncEventEmitter {
      *
      * Hooks are called on each record, so getAll, findAll, and insertAll operations will call each hook for each
      * record.
-     *
-     * @param {MapperOptions} options
      */
     constructor(options: MapperOptions) {
         super();
@@ -221,7 +219,7 @@ export class Mapper extends AsyncEventEmitter {
 
         await this.emit('beforeUpdate', record);
 
-        return await this.adapter.replace(this.collection, id, record.serialize('save'), rev).then(async (data) => {
+        return this.adapter.replace(this.collection, id, record.serialize('save'), rev).then(async (data) => {
             record.commit(data);
             await this.emit('afterUpdate', record);
             await this.emit('afterGet', record);
@@ -248,7 +246,7 @@ export class Mapper extends AsyncEventEmitter {
 
         await this.emit('beforeInsert', record);
 
-        return await this.adapter.insert(this.collection, record.serialize('save')).then(async (result) => {
+        return this.adapter.insert(this.collection, record.serialize('save')).then(async (result) => {
             record.init(result);
             await this.emit('afterInsert', record);
             await this.emit('afterGet', record);
