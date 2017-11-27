@@ -12,8 +12,13 @@ import Mapper from '../src/Mapper';
 describe('Container', () => {
     const config = require('./fixtures/config/' + process.env.NODE_ENV + '.json')['arangodb'];
     let adapter;
+    let mapperHookRan = false;
     let instance;
     let gets = 0;
+
+    beforeEach(() => {
+        mapperHookRan = false;
+    });
 
     before((done) => {
         adapter = new ArangoDBAdapter(config);
@@ -34,6 +39,11 @@ describe('Container', () => {
                             expect(mapper).to.be.a('string');
                             expect(record).to.be.an.instanceOf(Record);
                             gets++;
+
+                            if (mapper === 'accounts') {
+                                expect(mapperHookRan).to.equal(true);
+                            }
+
                             resolve();
                         }, 20);
                     });
@@ -91,6 +101,7 @@ describe('Container', () => {
                         afterGet(record) {
                             expect(this).to.be.an.instanceOf(Mapper);
                             expect(record).to.be.an.instanceOf(Record);
+                            mapperHookRan = true;
                         },
                         afterInsert(record) {
                             expect(this).to.be.an.instanceOf(Mapper);

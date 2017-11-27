@@ -181,7 +181,7 @@ export class Container extends AsyncEventEmitter {
 
         for (const hookName of Mapper.hooksList) {
             if (options[hookName]) {
-                mapperOptions[hookName] = options[name];
+                mapperOptions[hookName] = options[hookName];
             }
         }
 
