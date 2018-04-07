@@ -38,7 +38,7 @@
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.43",
     "@types/node": "^8.0.46",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^2.0.0",
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.0",
