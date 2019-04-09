@@ -9,6 +9,7 @@ notifications:
     on_start: never     # options: [always|never|change] default: always
 node_js:
   - '8'
+  - '9'
 services:
   - docker
 before_script:
