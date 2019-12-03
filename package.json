@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/bdfoster/nomatic-data#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.6",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.13.2",
     "bcrypt": "^3.0.5",
