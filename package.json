@@ -54,7 +54,7 @@
     "typescript": "3.4.3"
   },
   "dependencies": {
-    "ajv": "^6.10.0",
+    "ajv": "^6.12.2",
     "ajv-async": "^1.0.1",
     "lodash.get": "^4.4.2",
     "lodash.merge": "^4.6.1",
