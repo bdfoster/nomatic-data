@@ -40,7 +40,7 @@
     "@types/node": "^11.13.2",
     "bcrypt": "^3.0.5",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.0",
+    "coveralls": "^3.0.14",
     "cross-env": "^5.1.0",
     "mocha": "^6.1.2",
     "node-gyp": "^3.6.2",
